@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XMLTV Parser</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #333;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border: 1px solid #555;
+    }
+    th {
+      background-color: #444;
+    }
+    tr:nth-child(even) {
+      background-color: #444;
+    }
+    tr:nth-child(odd) {
+      background-color: #222;
+    }
+    input[type="file"], input[type="text"] {
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #555;
+      background-color: #222;
+      color: white;
+    }
+    button {
+      padding: 10px;
+      margin: 5px;
+      background-color: #555;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #666;
+    }
+  </style>
+<style type="text/css">
+.grande { font-size: 60px; }
+</style>
+<script>
+// Escribir aqui el código Javascript
+</script>
+</head>
+<body>
+
+  <h1>XMLTV Parser</h1>
+
+  <!-- File input to upload XMLTV -->
+  <input type="file" id="fileInput" accept=".xml" onchange="loadFile()">
+
+  <!-- Filter input to filter by channel name -->
+  <input type="text" id="channelFilter" placeholder="Filter by channel name" oninput="applyFilter()">
+
+  <!-- Table to display parsed data -->
+  <table id="programTable">
+    <thead>
+      <tr>
+        <th>Channel</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Icon</th>
+        <th>Title</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Pagination buttons -->
+  <div>
+    <button id="prevBtn" onclick="changePage(-1)">Previous</button>
+    <button id="nextBtn" onclick="changePage(1)">Next</button>
+  </div>
+
+  <script>
+    let xmlData = null;
+    let currentPage = 0;
+    const itemsPerPage = 200;
+
+    // Function to load the XML file
+    function loadFile() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
+        xmlData = xmlDoc;
+        currentPage = 0; // Reset page to 0 on new file load
+        displayTable();
+      };
+      reader.readAsText(file);
+    }
+
+    // Function to display the table based on current page
+    function displayTable() {
+      if (!xmlData) return;
+
+      const programs = xmlData.getElementsByTagName('programme');
+      const filterText = document.getElementById('channelFilter').value.toLowerCase();
+      const filteredPrograms = [];
+
+      // Filter programs based on the channel name
+      for (let i = 0; i < programs.length; i++) {
+        const program = programs[i];
+        const channelName = program.getAttribute('channel');
+        if (channelName.toLowerCase().includes(filterText)) {
+          filteredPrograms.push(program);
+        }
+      }
+
+      // Calculate pagination indices
+      const startIndex = currentPage * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, filteredPrograms.length);
+
+      const tableBody = document.getElementById('programTable').getElementsByTagName('tbody')[0];
+      tableBody.innerHTML = ""; // Clear the current table data
+
+      // Populate the table with programs
+      for (let i = startIndex; i < endIndex; i++) {
+        const program = filteredPrograms[i];
+        const channelName = program.getAttribute('channel');
+        const startTime = new Date(parseInt(program.getAttribute('start')) * 1000); // Convert to date
+        const endTime = new Date(parseInt(program.getAttribute('stop')) * 1000); // Convert to date
+        const title = program.getElementsByTagName('title')[0].textContent;
+        const desc = program.getElementsByTagName('desc')[0]?.textContent || 'No description';
+        const iconSrc = program.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
+
+        // Create a new row in the table
+        const row = tableBody.insertRow();
+        row.innerHTML = `
+          <td>${channelName}</td>
+          <td>${startTime.toLocaleString('en-GB')}</td>
+          <td>${endTime.toLocaleString('en-GB')}</td>
+          <td><img src="${iconSrc}" alt="Icon" style="width: 40px; height: auto;"></td>
+          <td>${title}</td>
+          <td>${desc}</td>
+        `;
+      }
+
+      // Show/hide pagination buttons
+      document.getElementById('prevBtn').disabled = currentPage <= 0;
+      document.getElementById('nextBtn').disabled = currentPage >= Math.ceil(filteredPrograms.length / itemsPerPage) - 1;
+    }
+
+    // Function to change pages (next/previous)
+    function changePage(direction) {
+      currentPage += direction;
+      displayTable();
+    }
+
+    // Function to apply the filter by channel name
+    function applyFilter() {
+      displayTable();
+    }
+  </script>
+
+
+
+
+</body></html>
