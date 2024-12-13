@@ -129,7 +129,7 @@
       for (let i = 0; i < programmes.length; i++) {
         const prog = programmes[i];
         const channel = prog.getAttribute('channel') || '';
-        const start = formatXMLTVTime(prog.getAttribute('start'));
+        const start = formatXMLTVDate(prog.getAttribute('start'));
         const stop = formatXMLTVTime(prog.getAttribute('stop'));
         const title = prog.getElementsByTagName('title')[0]?.textContent || '';
         const description = prog.getElementsByTagName('desc')[0]?.textContent || '';
@@ -144,7 +144,7 @@
     }
 
     // Correct XMLTV time formatting into 'dd/mm/yyyy hh:mm'
-    function formatXMLTVTime(time) {
+    function formatXMLTVDate(time) {
       if (!time) return '';
       const year = time.substring(0, 4);
       const month = time.substring(4, 6);
@@ -153,6 +153,18 @@
       const minute = time.substring(10, 12);
 
       return `${day}/${month}/${year} ${hour}:${minute}`;
+    }
+    
+    // Correct XMLTV time formatting into 'dd/mm/yyyy hh:mm'
+    function formatXMLTVTime(time) {
+      if (!time) return '';
+      const year = time.substring(0, 4);
+      const month = time.substring(4, 6);
+      const day = time.substring(6, 8);
+      const hour = time.substring(8, 10);
+      const minute = time.substring(10, 12);
+
+      return `${hour}:${minute}`;
     }
 
     function renderTable() {
@@ -178,8 +190,7 @@
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${item.channel}</td>
-          <td>${item.start}</td>
-          <td>${item.stop}</td>
+          <td>${item.start}-${item.stop}</td>
           <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="80">` : '·'}</td>
           <td>${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="100">` : '·'}</td>
           <td class="title">${item.title}</td>
