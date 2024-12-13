@@ -103,7 +103,7 @@
 
     // Load XML data from the default URL
     async function fetchXML() {
-      const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/guiaiptv.xml';
+      const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/EPG_dobleM.xml';
       const response = await fetch(url);
       const xmlText = await response.text();
       parseXML(xmlText);
@@ -133,8 +133,9 @@
         const title = prog.getElementsByTagName('title')[0]?.textContent || '';
         const description = prog.getElementsByTagName('desc')[0]?.textContent || '';
         const iconSrc = prog.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
+        const iconSrc2 = prog.getElementsByTagName('icon2')[0]?.getAttribute('src') || '';
 
-        epgData.push({ channel, start, stop, iconSrc, title, description });
+        epgData.push({ channel, start, stop, iconSrc, iconSrc2, title, description });
       }
 
       currentPage = 0;
@@ -178,7 +179,8 @@
           <td>${item.channel}</td>
           <td>${item.start}</td>
           <td>${item.stop}</td>
-          <td>${item.iconSrc ? `<img src="${item.iconSrc}" width="100">` : 'N/A'}</td>
+          <td>${item.iconSrc ? `<img src="${item.iconSrc}" width="100">` : '·'}</td>
+          <td>${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="100">` : '·'}</td>
           <td class="title">${item.title}</td>
           <td class="description">${item.description}</td>
         `;
