@@ -1,98 +1,81 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>EPG dobleM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visor EPG</title>
   <style>
-    /* General Page Styles */
     body {
       font-family: Arial, sans-serif;
-      background-color: #222;
       color: white;
-      padding: 15px;
+      background: #333;
+      padding: 10px;
     }
 
-    /* Input Fields */
-    label {
-      margin-right: 5px;
+    h1 {
+      text-align: center;
     }
 
-    input[type="file"],
+    #controls {
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
     input[type="text"] {
-      margin: 5px 0;
       padding: 5px;
+      margin: 5px;
     }
 
-    /* Table Styles */
-    table {
-      border-collapse: collapse;
+    #data-table {
       width: 100%;
-      background-color: black;
+      border-collapse: collapse;
+      background: black;
       color: white;
-      margin: 10px 0;
     }
 
-    th, td {
+    #data-table th,
+    #data-table td {
       border: 1px solid white;
       padding: 8px;
+      text-align: center;
+    }
+
+    #data-table th {
+      background: #555;
+    }
+
+    /* Align title and description fields to the left */
+    #data-table td.title,
+    #data-table td.description {
       text-align: left;
-      font-size: 14px;
     }
 
-    th {
-      background-color: #555;
-    }
-
-    tr:nth-child(even) {
-      background-color: #333;
-    }
-
-    /* Buttons for Pagination */
-    button {
+    .pagination-btn {
+      padding: 10px;
       background-color: #555;
       color: white;
-      padding: 10px;
       border: none;
       cursor: pointer;
       margin: 5px;
     }
 
-    button:hover {
-      background-color: #777;
+    .pagination-btn:disabled {
+      background: #777;
     }
   </style>
-<style type="text/css">
-.grande { font-size: 60px; }
-</style>
-<script>
-// Escribir aqui el código Javascript
-</script>
 </head>
 <body>
-
   <h1>EPG dobleM</h1>
 
-  <!-- File Selector -->
-  <div>
-    <label for="fileInput">Selecciona archivo XMLTV:</label>
-    <input type="file" id="fileInput" accept=".xml">
+  <div id="controls">
+    <input type="text" id="channelFilter" placeholder="Filtrar por Canal">
+    <input type="text" id="titleFilter" placeholder="Filtrar por Título">
+    <input type="text" id="descriptionFilter" placeholder="Filtrar por Descripción">
+    <input type="file" id="fileInput">
+    <button onclick="fetchXML()">Recargar EPG dobleM</button>
   </div>
 
-  <!-- Filtering Inputs -->
-  <div>
-    <label>Filtro por Canal:</label>
-    <input type="text" id="filterChannel" oninput="applyFilters()">
-
-    <label>Filtro por Título:</label>
-    <input type="text" id="filterTitle" oninput="applyFilters()">
-
-    <label>Filtro por Descripciónn:</label>
-    <input type="text" id="filterDescription" oninput="applyFilters()">
-  </div>
-
-  <!-- Table for displaying data -->
-  <table>
+  <table id="data-table">
     <thead>
       <tr>
         <th>Canal</th>
@@ -103,144 +86,129 @@
         <th>Descripción</th>
       </tr>
     </thead>
-    <tbody id="tableBody">
-      <!-- Dynamically populated table rows -->
+    <tbody>
     </tbody>
   </table>
+  
+  
 
-  <!-- Pagination Controls -->
-  <div>
-    <button onclick="prevPage()">Anterior</button>
-    <button onclick="nextPage()">Siguiente</button>
+  <div style="text-align: center;">
+    <button class="pagination-btn" onclick="prevPage()" disabled>Previous</button>
+    <button class="pagination-btn" onclick="nextPage()" disabled>Next</button>
   </div>
 
-<script>
-let data = [];
-let currentPage = 0;
-const rowsPerPage = 100;
+  <script>
+    let epgData = [];
+    let currentPage = 0;
 
-// Handle file selection
-document.getElementById('fileInput').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      parseXMLTV(event.target.result);
-    };
-    reader.readAsText(file);
-  }
-});
+    // Load XML data from the default URL
+    async function fetchXML() {
+      const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/guiaiptv.xml';
+      const response = await fetch(url);
+      const xmlText = await response.text();
+      parseXML(xmlText);
+    }
 
-// Parse the XMLTV file
-function parseXMLTV(xmlString) {
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
-  const programmes = xmlDoc.getElementsByTagName('programme');
-
-  data = [];
-  
-  for (let i = 0; i < programmes.length; i++) {
-    const channel = programmes[i].getAttribute('channel') || '';
-    const start = programmes[i].getAttribute('start') || '';
-    const stop = programmes[i].getAttribute('stop') || '';
-    const title = programmes[i].getElementsByTagName('title')[0]?.textContent || '';
-    const description = programmes[i].getElementsByTagName('desc')[0]?.textContent || '';
-    const icon = programmes[i].getElementsByTagName('icon')[0]?.getAttribute('src') || '';
-
-    data.push({
-      channel,
-      start: formatDate(start),
-      stop: formatDate(stop),
-      title,
-      description,
-      icon,
+    // Handle uploaded XML file
+    document.getElementById('fileInput').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => parseXML(e.target.result);
+        reader.readAsText(file);
+      }
     });
-  }
 
-  currentPage = 0;
-  displayPage();
-}
+    // Parse XML text and populate table data
+    function parseXML(xmlText) {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
+      const programmes = xmlDoc.getElementsByTagName('programme');
+      epgData = [];
+      for (let i = 0; i < programmes.length; i++) {
+        const prog = programmes[i];
+        const channel = prog.getAttribute('channel') || '';
+        const start = formatXMLTVTime(prog.getAttribute('start'));
+        const stop = formatXMLTVTime(prog.getAttribute('stop'));
+        const title = prog.getElementsByTagName('title')[0]?.textContent || '';
+        const description = prog.getElementsByTagName('desc')[0]?.textContent || '';
+        const iconSrc = prog.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
 
-// Format date from the XML date format (YYYYMMDDHHMMSS)
-function formatDate(datetimeString) {
-  if (!datetimeString) return '';
-  const date = new Date(
-    parseInt(datetimeString.substring(0, 4)), // Year
-    parseInt(datetimeString.substring(4, 6)) - 1, // Month
-    parseInt(datetimeString.substring(6, 8)), // Date
-    parseInt(datetimeString.substring(8, 10)), // Hour
-    parseInt(datetimeString.substring(10, 12)), // Minute
-    parseInt(datetimeString.substring(12, 14)) // Second
-  );
-  if (isNaN(date.getTime())) return '';
-  const dd = String(date.getDate()).padStart(2, '0');
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const yyyy = date.getFullYear();
-  const hh = String(date.getHours()).padStart(2, '0');
-  const min = String(date.getMinutes()).padStart(2, '0');
-  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
-}
+        epgData.push({ channel, start, stop, iconSrc, title, description });
+      }
 
-// Filter logic
-function applyFilters() {
-  currentPage = 0;
-  displayPage();
-}
+      currentPage = 0;
+      renderTable();
+    }
 
-// Filter data based on input fields
-function filterData() {
-  const filterChannel = document.getElementById('filterChannel').value.toLowerCase();
-  const filterTitle = document.getElementById('filterTitle').value.toLowerCase();
-  const filterDescription = document.getElementById('filterDescription').value.toLowerCase();
+    // Correct XMLTV time formatting into 'dd/mm/yyyy hh:mm'
+    function formatXMLTVTime(time) {
+      if (!time) return '';
+      const year = time.substring(0, 4);
+      const month = time.substring(4, 6);
+      const day = time.substring(6, 8);
+      const hour = time.substring(8, 10);
+      const minute = time.substring(10, 12);
 
-  return data.filter(item =>
-    item.channel.toLowerCase().includes(filterChannel) &&
-    item.title.toLowerCase().includes(filterTitle) &&
-    item.description.toLowerCase().includes(filterDescription)
-  );
-}
+      return `${day}/${month}/${year} ${hour}:${minute}`;
+    }
 
-// Display current page with data
-function displayPage() {
-  const tableBody = document.getElementById('tableBody');
-  tableBody.innerHTML = '';
+    function renderTable() {
+      const filters = {
+        channel: document.getElementById('channelFilter').value.toLowerCase(),
+        title: document.getElementById('titleFilter').value.toLowerCase(),
+        description: document.getElementById('descriptionFilter').value.toLowerCase(),
+      };
 
-  const filteredData = filterData();
-  const startIndex = currentPage * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, filteredData.length);
+      const filteredData = epgData.filter(item =>
+        (!filters.channel || item.channel.toLowerCase().includes(filters.channel)) &&
+        (!filters.title || item.title.toLowerCase().includes(filters.title)) &&
+        (!filters.description || item.description.toLowerCase().includes(filters.description))
+      );
 
-  for (let i = startIndex; i < endIndex; i++) {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${filteredData[i].channel}</td>
-      <td>${filteredData[i].start}</td>
-      <td>${filteredData[i].stop}</td>
-      <td><img src="${filteredData[i].icon}" alt="${filteredData[i].channel}" style="width: 100px; height: auto;"></td>
-      <td>${filteredData[i].title}</td>
-      <td>${filteredData[i].description}</td>
-    `;
-    tableBody.appendChild(row);
-  }
-}
+      const startIndex = currentPage * 100;
+      const paginatedData = filteredData.slice(startIndex, startIndex + 100);
 
-// Handle next page
-function nextPage() {
-  const filteredData = filterData();
-  if ((currentPage + 1) * rowsPerPage < filteredData.length) {
-    currentPage++;
-    displayPage();
-  }
-}
+      const tableBody = document.querySelector('#data-table tbody');
+      tableBody.innerHTML = '';
 
-// Handle previous page
-function prevPage() {
-  if (currentPage > 0) {
-    currentPage--;
-    displayPage();
-  }
-}
-</script>
+      paginatedData.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.channel}</td>
+          <td>${item.start}</td>
+          <td>${item.stop}</td>
+          <td>${item.iconSrc ? `<img src="${item.iconSrc}" width="100">` : 'N/A'}</td>
+          <td class="title">${item.title}</td>
+          <td class="description">${item.description}</td>
+        `;
+        tableBody.appendChild(row);
+      });
 
+      document.querySelector('.pagination-btn:nth-child(1)').disabled = currentPage === 0;
+      document.querySelector('.pagination-btn:nth-child(2)').disabled = startIndex + 100 >= filteredData.length;
+    }
 
+    function prevPage() {
+      if (currentPage > 0) {
+        currentPage--;
+        renderTable();
+      }
+    }
 
-</body></html>
+    function nextPage() {
+      const maxPages = Math.ceil(epgData.length / 100) - 1;
+      if (currentPage < maxPages) {
+        currentPage++;
+        renderTable();
+      }
+    }
+
+    document.getElementById('channelFilter').addEventListener('input', renderTable);
+    document.getElementById('titleFilter').addEventListener('input', renderTable);
+    document.getElementById('descriptionFilter').addEventListener('input', renderTable);
+
+    fetchXML();
+  </script>
+</body>
+</html>
