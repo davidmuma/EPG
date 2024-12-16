@@ -52,9 +52,13 @@
       background-color: #424242;
     }
 
-    /* Align title and description fields to the left */
-    #data-table td.title,
-    #data-table td.description {
+    span.title {
+      font-size: 1.0em;
+      text-align: left;
+    }
+    
+    span.description {
+      font-size: 0.8em;
       text-align: left;
     }
 
@@ -89,18 +93,15 @@
       <tr>
         <th>Canal</th>
         <th>Fecha</th>
+        <th>Programa</th>
         <th>Poster</th>
         <th>Fanart</th>
-        <th>Título</th>
-        <th>Descripción</th>
       </tr>
     </thead>
     <tbody>
     </tbody>
   </table>
   
-  
-
   <div style="text-align: center;">
     <button class="pagination-btn" onclick="prevPage()" disabled>Previous</button>
     <button class="pagination-btn" onclick="nextPage()" disabled>Next</button>
@@ -137,14 +138,15 @@
       for (let i = 0; i < programmes.length; i++) {
         const prog = programmes[i];
         const channel = prog.getAttribute('channel') || '';
-        const start = formatXMLTVDate(prog.getAttribute('start'));
+        const date = formatXMLTVDate(prog.getAttribute('start'));
+        const start = formatXMLTVTime(prog.getAttribute('start'));
         const stop = formatXMLTVTime(prog.getAttribute('stop'));
         const title = prog.getElementsByTagName('title')[0]?.textContent || '';
         const description = prog.getElementsByTagName('desc')[0]?.textContent || '';
         const iconSrc = prog.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
         const iconSrc2 = prog.getElementsByTagName('icon2')[0]?.getAttribute('src') || '';
 
-        epgData.push({ channel, start, stop, iconSrc, iconSrc2, title, description });
+        epgData.push({ channel, date, start, stop, iconSrc, iconSrc2, title, description });
       }
 
       currentPage = 0;
@@ -160,7 +162,7 @@
       const hour = time.substring(8, 10);
       const minute = time.substring(10, 12);
 
-      return `${day}/${month}/${year} ${hour}:${minute}`;
+      return `${day}/${month}/${year}`;
     }
     
     // Correct XMLTV time formatting into 'dd/mm/yyyy hh:mm'
@@ -198,11 +200,14 @@
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${item.channel}</td>
-          <td>${item.start}-${item.stop}</td>
+          <td>${item.date}<br>${item.start}>${item.stop}</td>
+          <td>
+            <span style="float:left" class="title">${item.title}</span>
+            <br>
+            <span style="float:left" class="description">${item.description}</span>
+          </td>
           <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="80">` : '·'}</td>
           <td>${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="100">` : '·'}</td>
-          <td class="title">${item.title}</td>
-          <td style="font-size:80%" class="description">${item.description}</td>
         `;
         tableBody.appendChild(row);
       });
