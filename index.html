@@ -59,6 +59,7 @@
     
     span.description {
       font-size: 0.8em;
+      font-style: italic;
       text-align: left;
     }
 
@@ -200,7 +201,7 @@
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${item.channel}</td>
-          <td>${item.date}<br>${item.start}>${item.stop}</td>
+          <td>${item.date}<br>${item.start}~${item.stop}</td>
           <td>
             <span style="float:left" class="title">${item.title}</span>
             <br>
