@@ -94,9 +94,8 @@
       <tr>
         <th>Canal</th>
         <th>Fecha</th>
+        <th>Imagen</th>
         <th>Programa</th>
-        <th>Poster</th>
-        <th>Fanart</th>
       </tr>
     </thead>
     <tbody>
@@ -202,13 +201,15 @@
         row.innerHTML = `
           <td>${item.channel}</td>
           <td>${item.date}<br>${item.start}~${item.stop}</td>
-          <td>
+          <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="100">` : '·'}</td>
+          <td> 
             <span style="float:left" class="title">${item.title}</span>
+            ${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="80" align="right">` : '·'}
             <br>
             <span style="float:left" class="description">${item.description}</span>
           </td>
-          <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="80">` : '·'}</td>
-          <td>${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="100">` : '·'}</td>
+          
+
         `;
         tableBody.appendChild(row);
       });
