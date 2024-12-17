@@ -201,10 +201,10 @@
         row.innerHTML = `
           <td>${item.channel}</td>
           <td>${item.date}<br>${item.start}~${item.stop}</td>
-          <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="100">` : '·'}</td>
+          <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="100">` : ''}</td>
           <td> 
             <span style="float:left" class="title">${item.title}</span>
-            ${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="80" align="right">` : '·'}
+            ${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="80" align="right">` : ''}
             <br>
             <span style="float:left" class="description">${item.description}</span>
           </td>
