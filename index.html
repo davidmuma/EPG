@@ -212,8 +212,8 @@
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>
-            <div>${item.channel}</div>
             ${item.channelIcon ? `<img src="${item.channelIcon}" height="60" alt="Channel Icon">` : ''}
+            <div>${item.channel}</div>
           </td>
           <td>${item.date}<br>${item.start}~${item.stop}</td>
           <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="100">` : ''}</td>
