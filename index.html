@@ -135,6 +135,18 @@
       const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
       const programmes = xmlDoc.getElementsByTagName('programme');
       epgData = [];
+
+      // Get channel information
+      const channels = {};
+      const channelElements = xmlDoc.getElementsByTagName('channel');
+      for (let i = 0; i < channelElements.length; i++) {
+        const channel = channelElements[i];
+        const channelId = channel.getAttribute('id');
+        const iconSrc = channel.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
+        channels[channelId] = iconSrc;
+      }
+
+      // Now parse the programs
       for (let i = 0; i < programmes.length; i++) {
         const prog = programmes[i];
         const channel = prog.getAttribute('channel') || '';
@@ -146,7 +158,10 @@
         const iconSrc = prog.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
         const iconSrc2 = prog.getElementsByTagName('icon2')[0]?.getAttribute('src') || '';
 
-        epgData.push({ channel, date, start, stop, iconSrc, iconSrc2, title, description });
+        // Attach channel icon from the channel data
+        const channelIcon = channels[channel] || ''; // Default to empty if not found
+
+        epgData.push({ channel, channelIcon, date, start, stop, iconSrc, iconSrc2, title, description });
       }
 
       currentPage = 0;
@@ -165,12 +180,9 @@
       return `${day}/${month}/${year}`;
     }
     
-    // Correct XMLTV time formatting into 'dd/mm/yyyy hh:mm'
+    // Correct XMLTV time formatting into 'hh:mm'
     function formatXMLTVTime(time) {
       if (!time) return '';
-      const year = time.substring(0, 4);
-      const month = time.substring(4, 6);
-      const day = time.substring(6, 8);
       const hour = time.substring(8, 10);
       const minute = time.substring(10, 12);
 
@@ -199,17 +211,17 @@
       paginatedData.forEach(item => {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td>${item.channel}</td>
+          <td>
+            <div>${item.channel}</div>
+            ${item.channelIcon ? `<img src="${item.channelIcon}" height="60" alt="Channel Icon">` : ''}
+          </td>
           <td>${item.date}<br>${item.start}~${item.stop}</td>
           <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="100">` : ''}</td>
           <td> 
             <span style="float:left" class="title">${item.title}</span>
-            ${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="80" align="right">` : ''}
-            <br>
+            ${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="80" align="right">` : ''}<br>
             <span style="float:left" class="description">${item.description}</span>
           </td>
-          
-
         `;
         tableBody.appendChild(row);
       });
