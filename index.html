@@ -21,7 +21,7 @@
       text-align: center;
     }
 
-    input[type="text"] {
+    input[type="text"], select {
       padding: 5px;
       margin: 5px;
     }
@@ -81,12 +81,16 @@
   <h1>EPG dobleM</h1>
 
   <div id="controls">
+    <select id="channelDropdown">
+      <option value="">Seleccionar Canal</option>
+    </select>
     <input type="text" id="channelFilter" placeholder="Filtrar por Canal">
     <input type="text" id="titleFilter" placeholder="Filtrar por Título">
     <input type="text" id="descriptionFilter" placeholder="Filtrar por Descripción">
     <br><br><button onclick="fetchXML()">Recargar EPG dobleM</button><br>
     <br><label for="myfile">Usar otro xml:</label>
     <input accept=".xml" type="file" id="fileInput">
+    <br><br>
   </div>
 
   <table id="data-table">
@@ -110,6 +114,7 @@
   <script>
     let epgData = [];
     let currentPage = 0;
+    let channelsList = [];
 
     // Load XML data from the default URL
     async function fetchXML() {
@@ -139,12 +144,21 @@
       // Get channel information
       const channels = {};
       const channelElements = xmlDoc.getElementsByTagName('channel');
+      channelsList = []; // Clear the previous channels list
+
       for (let i = 0; i < channelElements.length; i++) {
         const channel = channelElements[i];
         const channelId = channel.getAttribute('id');
         const iconSrc = channel.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
         channels[channelId] = iconSrc;
+        channelsList.push(channelId); // Add channel to the list for the dropdown
       }
+
+      // Remove duplicates by converting to Set and then back to an array
+      channelsList = [...new Set(channelsList)];
+
+      // Populate the dropdown with the unique channels
+      populateChannelDropdown();
 
       // Now parse the programs
       for (let i = 0; i < programmes.length; i++) {
@@ -179,7 +193,7 @@
 
       return `${day}/${month}/${year}`;
     }
-    
+
     // Correct XMLTV time formatting into 'hh:mm'
     function formatXMLTVTime(time) {
       if (!time) return '';
@@ -189,6 +203,24 @@
       return `${hour}:${minute}`;
     }
 
+    function populateChannelDropdown() {
+      const dropdown = document.getElementById('channelDropdown');
+      channelsList.forEach(channelId => {
+        const option = document.createElement('option');
+        option.value = channelId;
+        option.textContent = channelId;
+        dropdown.appendChild(option);
+      });
+    }
+
+    // Listen for changes in the channel dropdown and filter data accordingly
+    document.getElementById('channelDropdown').addEventListener('change', (event) => {
+      const selectedChannel = event.target.value;
+      document.getElementById('channelFilter').value = selectedChannel; // Update the filter input field
+      renderTable(); // Re-render the table with the new filter
+    });
+
+    // Render the table based on filters
     function renderTable() {
       const filters = {
         channel: document.getElementById('channelFilter').value.toLowerCase(),
