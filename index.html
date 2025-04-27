@@ -1,82 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visor EPG</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visor EPG dobleM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     body {
-      font-family: system-ui;
-      color: white;
-      background: #212121;
-      padding: 5px;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      background: linear-gradient(180deg, #1e1e1e, #2b2b2b);
+      padding: 20px;
     }
 
     h1 {
       text-align: center;
+      font-size: 2rem;
+      color: #00e5ff;
+      margin-bottom: 20px;
     }
 
     #controls {
-      margin-bottom: 15px;
+      margin-bottom: 25px;
       text-align: center;
+      background: #2e2e2e;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
     }
 
-    input[type="text"], select {
-      padding: 5px;
-      margin: 5px;
+    input[type="text"],
+    select {
+      padding: 10px;
+      margin: 8px;
+      border-radius: 6px;
+      border: 1px solid #555;
+      background-color: #444;
+      color: white;
+      font-size: 0.95em;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #00e5ff;
+    }
+
+    button {
+      font-size: 1em;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #00e5ff;
+      color: #000;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #00bcd4;
+    }
+
+    button:disabled {
+      background-color: #666;
+      cursor: not-allowed;
     }
 
     #data-table {
       width: 100%;
       border-collapse: collapse;
-      background: black;
-      color: white;
+      background: #000;
+      margin-top: 20px;
     }
 
     #data-table th,
     #data-table td {
-      border: 1px solid white;
-      padding: 8px;
+      border: 1px solid #444;
+      padding: 10px;
       text-align: center;
     }
 
     #data-table th {
-      background: #555;
+      background: #333;
+      font-weight: 600;
+      color: #00e5ff;
     }
 
     tbody tr:nth-child(odd) {
-      background-color: #333;
+      background-color: #2c2c2c;
     }
 
     tbody tr:nth-child(even) {
-      background-color: #424242;
+      background-color: #383838;
+    }
+
+    tbody tr:hover {
+      background-color: #444;
     }
 
     span.title {
-      font-size: 1.0em;
+      font-size: 1em;
+      font-weight: 600;
       text-align: left;
     }
-    
+
     span.description {
-      font-size: 0.8em;
+      font-size: 0.85em;
       font-style: italic;
       text-align: left;
+      color: #ccc;
     }
 
     .pagination-btn {
-      padding: 10px;
-      background-color: #555;
-      color: white;
-      border: none;
-      cursor: pointer;
-      margin: 5px;
+      margin: 10px 5px;
     }
 
-    .pagination-btn:disabled {
-      background: #777;
+    #result-count {
+      text-align: center;
+      margin: 15px 0;
+      font-size: 0.95em;
+      color: #aaa;
+    }
+
+    label {
+      font-size: 0.95em;
+      color: #ddd;
+    }
+
+    input[type="file"] {
+      color: #fff;
     }
   </style>
 </head>
+
 <body>
   <h1>EPG dobleM</h1>
 
@@ -97,18 +153,19 @@
     <thead>
       <tr>
         <th>Canal</th>
-        <th>Fecha</th>
+        <th>Fecha y Hora</th>
         <th>Imagen</th>
         <th>Programa</th>
       </tr>
     </thead>
-    <tbody>
-    </tbody>
+    <tbody></tbody>
   </table>
-  
+
+  <div id="result-count"></div>
+
   <div style="text-align: center;">
-    <button class="pagination-btn" onclick="prevPage()" disabled>Previous</button>
-    <button class="pagination-btn" onclick="nextPage()" disabled>Next</button>
+    <button class="pagination-btn" onclick="prevPage()" disabled>Anterior</button>
+    <button class="pagination-btn" onclick="nextPage()" disabled>Siguiente</button>
   </div>
 
   <script>
@@ -116,7 +173,6 @@
     let currentPage = 0;
     let channelsList = [];
 
-    // Load XML data from the default URL
     async function fetchXML() {
       const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/EPG_dobleM.xml';
       const response = await fetch(url);
@@ -124,7 +180,6 @@
       parseXML(xmlText);
     }
 
-    // Handle uploaded XML file
     document.getElementById('fileInput').addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if (file) {
@@ -134,33 +189,27 @@
       }
     });
 
-    // Parse XML text and populate table data
     function parseXML(xmlText) {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
       const programmes = xmlDoc.getElementsByTagName('programme');
       epgData = [];
 
-      // Get channel information
       const channels = {};
       const channelElements = xmlDoc.getElementsByTagName('channel');
-      channelsList = []; // Clear the previous channels list
+      channelsList = [];
 
       for (let i = 0; i < channelElements.length; i++) {
         const channel = channelElements[i];
         const channelId = channel.getAttribute('id');
         const iconSrc = channel.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
         channels[channelId] = iconSrc;
-        channelsList.push(channelId); // Add channel to the list for the dropdown
+        channelsList.push(channelId);
       }
 
-      // Remove duplicates by converting to Set and then back to an array
       channelsList = [...new Set(channelsList)];
-
-      // Populate the dropdown with the unique channels
       populateChannelDropdown();
 
-      // Now parse the programs
       for (let i = 0; i < programmes.length; i++) {
         const prog = programmes[i];
         const channel = prog.getAttribute('channel') || '';
@@ -171,9 +220,7 @@
         const description = prog.getElementsByTagName('desc')[0]?.textContent || '';
         const iconSrc = prog.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
         const iconSrc2 = prog.getElementsByTagName('icon2')[0]?.getAttribute('src') || '';
-
-        // Attach channel icon from the channel data
-        const channelIcon = channels[channel] || ''; // Default to empty if not found
+        const channelIcon = channels[channel] || '';
 
         epgData.push({ channel, channelIcon, date, start, stop, iconSrc, iconSrc2, title, description });
       }
@@ -182,29 +229,24 @@
       renderTable();
     }
 
-    // Correct XMLTV time formatting into 'dd/mm/yyyy hh:mm'
     function formatXMLTVDate(time) {
       if (!time) return '';
       const year = time.substring(0, 4);
       const month = time.substring(4, 6);
       const day = time.substring(6, 8);
-      const hour = time.substring(8, 10);
-      const minute = time.substring(10, 12);
-
       return `${day}/${month}/${year}`;
     }
 
-    // Correct XMLTV time formatting into 'hh:mm'
     function formatXMLTVTime(time) {
       if (!time) return '';
       const hour = time.substring(8, 10);
       const minute = time.substring(10, 12);
-
       return `${hour}:${minute}`;
     }
 
     function populateChannelDropdown() {
       const dropdown = document.getElementById('channelDropdown');
+      dropdown.innerHTML = '<option value="">Seleccionar Canal</option>';
       channelsList.forEach(channelId => {
         const option = document.createElement('option');
         option.value = channelId;
@@ -213,14 +255,12 @@
       });
     }
 
-    // Listen for changes in the channel dropdown and filter data accordingly
     document.getElementById('channelDropdown').addEventListener('change', (event) => {
       const selectedChannel = event.target.value;
-      document.getElementById('channelFilter').value = selectedChannel; // Update the filter input field
-      renderTable(); // Re-render the table with the new filter
+      document.getElementById('channelFilter').value = selectedChannel;
+      renderTable();
     });
 
-    // Render the table based on filters
     function renderTable() {
       const filters = {
         channel: document.getElementById('channelFilter').value.toLowerCase(),
@@ -244,15 +284,15 @@
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>
-            ${item.channelIcon ? `<img src="${item.channelIcon}" height="60" alt="Channel Icon">` : ''}
+            ${item.channelIcon ? `<img src="${item.channelIcon}" height="60" alt="Channel Icon"><br>` : ''}
             <div>${item.channel}</div>
           </td>
-          <td>${item.date}<br>${item.start}~${item.stop}</td>
+          <td>${item.date}<br><small>${item.start} - ${item.stop}</small></td>
           <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="100">` : ''}</td>
-          <td> 
-            <span style="float:left" class="title">${item.title}</span>
+          <td>
+            <span class="title" style="float:left">${item.title}</span>
             ${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="80" align="right">` : ''}<br>
-            <span style="float:left" class="description">${item.description}</span>
+            <span class="description" style="float:left">${item.description}</span>
           </td>
         `;
         tableBody.appendChild(row);
@@ -260,6 +300,9 @@
 
       document.querySelector('.pagination-btn:nth-child(1)').disabled = currentPage === 0;
       document.querySelector('.pagination-btn:nth-child(2)').disabled = startIndex + 100 >= filteredData.length;
+
+      document.getElementById('result-count').textContent =
+        `Mostrando ${startIndex + 1} a ${startIndex + paginatedData.length} de ${filteredData.length} resultados (Página ${currentPage + 1})`;
     }
 
     function prevPage() {
