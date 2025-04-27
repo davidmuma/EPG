@@ -130,6 +130,12 @@
     input[type="file"] {
       color: #fff;
     }
+    
+    .channel-name {
+  font-size: 0.85em;
+  color: #ccc;
+    }
+
   </style>
 </head>
 
@@ -285,7 +291,7 @@
         row.innerHTML = `
           <td>
             ${item.channelIcon ? `<img src="${item.channelIcon}" height="60" alt="Channel Icon"><br>` : ''}
-            <div>${item.channel}</div>
+            <div class="channel-name">${item.channel}</div>
           </td>
           <td>${item.date}<br><small>${item.start} - ${item.stop}</small></td>
           <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="100">` : ''}</td>
