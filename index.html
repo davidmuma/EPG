@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Visor EPG dobleM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPG dobleM - imágenes a ambos lados</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     body {
@@ -99,33 +99,46 @@
       background-color: #444;
     }
 
-    /* Última columna: texto a la izquierda */
+    /* Última columna: texto alineado a la izquierda */
     #data-table td:last-child {
       text-align: left;
-      position: relative;
       white-space: normal;
+      position: relative;
+      /* Para contener floats */
+      overflow: hidden;
     }
 
-    span.title {
-      font-size: 1em;
-      font-weight: 600;
-      display: block;
-    }
-
-    span.description {
-      font-size: 0.85em;
-      font-style: italic;
-      color: #ccc;
-      display: block;
-      margin-top: 5px;
+    /* Imagen iconSrc flotando a la izquierda */
+    .iconSrc-img {
+      float: left;
+      width: 80px;
+      height: auto;
+      margin-right: 10px;
+      object-fit: contain;
+      border-radius: 6px;
     }
 
     /* Imagen iconSrc2 flotando a la derecha */
     .iconSrc2-img {
       float: right;
       width: 80px;
+      height: auto;
       margin-left: 10px;
       object-fit: contain;
+      border-radius: 6px;
+    }
+
+    span.title {
+      font-size: 1em;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    span.description {
+      font-size: 0.85em;
+      font-style: italic;
+      color: #ccc;
     }
 
     .pagination-btn {
@@ -157,10 +170,6 @@
       height: 60px;
       margin-bottom: 5px;
     }
-
-    .program-img {
-      height: 100px;
-    }
   </style>
 </head>
 
@@ -186,7 +195,6 @@
       <tr>
         <th>Canal</th>
         <th>Fecha y Hora</th>
-        <th>Imagen</th>
         <th>Programa</th>
       </tr>
     </thead>
@@ -279,7 +287,7 @@
     function populateChannelDropdown() {
       const dropdown = document.getElementById('channelDropdown');
       dropdown.innerHTML = '<option value="">Seleccionar Canal</option>';
-      channelsList.forEach((channelId) => {
+      channelsList.forEach(channelId => {
         const option = document.createElement('option');
         option.value = channelId;
         option.textContent = channelId;
@@ -300,11 +308,10 @@
         description: document.getElementById('descriptionFilter').value.toLowerCase(),
       };
 
-      const filteredData = epgData.filter(
-        (item) =>
-          (!filters.channel || item.channel.toLowerCase().includes(filters.channel)) &&
-          (!filters.title || item.title.toLowerCase().includes(filters.title)) &&
-          (!filters.description || item.description.toLowerCase().includes(filters.description))
+      const filteredData = epgData.filter(item =>
+        (!filters.channel || item.channel.toLowerCase().includes(filters.channel)) &&
+        (!filters.title || item.title.toLowerCase().includes(filters.title)) &&
+        (!filters.description || item.description.toLowerCase().includes(filters.description))
       );
 
       const startIndex = currentPage * 100;
@@ -313,7 +320,7 @@
       const tableBody = document.querySelector('#data-table tbody');
       tableBody.innerHTML = '';
 
-      paginatedData.forEach((item) => {
+      paginatedData.forEach(item => {
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>
@@ -321,8 +328,8 @@
             <div class="channel-name">${item.channel}</div>
           </td>
           <td>${item.date}<br><small>${item.start} - ${item.stop}</small></td>
-          <td>${item.iconSrc ? `<img src="${item.iconSrc}" class="program-img" alt="Imagen del programa">` : ''}</td>
           <td>
+            ${item.iconSrc ? `<img src="${item.iconSrc}" class="iconSrc-img" alt="Imagen del programa">` : ''}
             ${item.iconSrc2 ? `<img src="${item.iconSrc2}" class="iconSrc2-img" alt="Imagen adicional">` : ''}
             <span class="title">${item.title}</span>
             <span class="description">${item.description}</span>
@@ -334,11 +341,8 @@
       document.querySelector('.pagination-btn:nth-child(1)').disabled = currentPage === 0;
       document.querySelector('.pagination-btn:nth-child(2)').disabled = startIndex + 100 >= filteredData.length;
 
-      document.getElementById('result-count').textContent = `Mostrando ${
-        startIndex + 1
-      } a ${startIndex + paginatedData.length} de ${filteredData.length} resultados (Página ${
-        currentPage + 1
-      })`;
+      document.getElementById('result-count').textContent =
+        `Mostrando ${startIndex + 1} a ${startIndex + paginatedData.length} de ${filteredData.length} resultados (Página ${currentPage + 1})`;
     }
 
     function prevPage() {
