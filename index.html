@@ -286,23 +286,23 @@
       const tableBody = document.querySelector('#data-table tbody');
       tableBody.innerHTML = '';
 
-      paginatedData.forEach(item => {
+      for (let item of paginated) {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td>
-            ${item.channelIcon ? `<img src="${item.channelIcon}" height="60" alt="Channel Icon"><br>` : ''}
-            <div class="channel-name">${item.channel}</div>
+          <td class="channel-icon text-center">
+            ${item.channelIcon ? `<img src="${item.channelIcon}" alt="Logo de ${item.channelName}"><br>` : ''}
+            <div>${item.channelName}</div>
           </td>
           <td>${item.date}<br><small>${item.start} - ${item.stop}</small></td>
-          <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="100">` : ''}</td>
+          <td class="program-img">${item.iconSrc ? `<img src="${item.iconSrc}" alt="Imagen del programa">` : ''}</td>
           <td>
             <span class="title">${item.title}</span><br>
             ${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="80" class="float-end" alt="Imagen adicional">` : ''}
             <div class="description">${item.description}</div>
           </td>
         `;
-        tableBody.appendChild(row);
-      });
+        tbody.appendChild(row);
+      }
 
       document.querySelector('.pagination-btn:nth-child(1)').disabled = currentPage === 0;
       document.querySelector('.pagination-btn:nth-child(2)').disabled = startIndex + 100 >= filteredData.length;
