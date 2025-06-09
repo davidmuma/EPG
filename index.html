@@ -77,7 +77,8 @@
     #data-table td {
       border: 1px solid #444;
       padding: 10px;
-      text-align: center;
+      text-align: center; /* Por defecto centrado */
+      vertical-align: middle;
     }
 
     #data-table th {
@@ -98,17 +99,33 @@
       background-color: #444;
     }
 
+    /* Última columna: texto a la izquierda */
+    #data-table td:last-child {
+      text-align: left;
+      position: relative;
+      white-space: normal;
+    }
+
     span.title {
       font-size: 1em;
       font-weight: 600;
-      text-align: left;
+      display: block;
     }
 
     span.description {
       font-size: 0.85em;
       font-style: italic;
-      text-align: left;
       color: #ccc;
+      display: block;
+      margin-top: 5px;
+    }
+
+    /* Imagen iconSrc2 flotando a la derecha */
+    .iconSrc2-img {
+      float: right;
+      width: 80px;
+      margin-left: 10px;
+      object-fit: contain;
     }
 
     .pagination-btn {
@@ -130,12 +147,20 @@
     input[type="file"] {
       color: #fff;
     }
-    
+
     .channel-name {
-  font-size: 0.85em;
-  color: #ccc;
+      font-size: 0.85em;
+      color: #ccc;
     }
 
+    .channel-icon {
+      height: 60px;
+      margin-bottom: 5px;
+    }
+
+    .program-img {
+      height: 100px;
+    }
   </style>
 </head>
 
@@ -146,13 +171,14 @@
     <select id="channelDropdown">
       <option value="">Seleccionar Canal</option>
     </select>
-    <input type="text" id="channelFilter" placeholder="Filtrar por Canal">
-    <input type="text" id="titleFilter" placeholder="Filtrar por Título">
-    <input type="text" id="descriptionFilter" placeholder="Filtrar por Descripción">
-    <br><br><button onclick="fetchXML()">Recargar EPG dobleM</button><br>
-    <br><label for="myfile">Usar otro xml:</label>
-    <input accept=".xml" type="file" id="fileInput">
-    <br><br>
+    <input type="text" id="channelFilter" placeholder="Filtrar por Canal" />
+    <input type="text" id="titleFilter" placeholder="Filtrar por Título" />
+    <input type="text" id="descriptionFilter" placeholder="Filtrar por Descripción" />
+    <br /><br />
+    <button onclick="fetchXML()">Recargar EPG dobleM</button><br /><br />
+    <label for="myfile">Usar otro xml:</label>
+    <input accept=".xml" type="file" id="fileInput" />
+    <br /><br />
   </div>
 
   <table id="data-table">
@@ -253,7 +279,7 @@
     function populateChannelDropdown() {
       const dropdown = document.getElementById('channelDropdown');
       dropdown.innerHTML = '<option value="">Seleccionar Canal</option>';
-      channelsList.forEach(channelId => {
+      channelsList.forEach((channelId) => {
         const option = document.createElement('option');
         option.value = channelId;
         option.textContent = channelId;
@@ -274,10 +300,11 @@
         description: document.getElementById('descriptionFilter').value.toLowerCase(),
       };
 
-      const filteredData = epgData.filter(item =>
-        (!filters.channel || item.channel.toLowerCase().includes(filters.channel)) &&
-        (!filters.title || item.title.toLowerCase().includes(filters.title)) &&
-        (!filters.description || item.description.toLowerCase().includes(filters.description))
+      const filteredData = epgData.filter(
+        (item) =>
+          (!filters.channel || item.channel.toLowerCase().includes(filters.channel)) &&
+          (!filters.title || item.title.toLowerCase().includes(filters.title)) &&
+          (!filters.description || item.description.toLowerCase().includes(filters.description))
       );
 
       const startIndex = currentPage * 100;
@@ -286,19 +313,19 @@
       const tableBody = document.querySelector('#data-table tbody');
       tableBody.innerHTML = '';
 
-      paginatedData.forEach(item => {
+      paginatedData.forEach((item) => {
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>
-            ${item.channelIcon ? `<img src="${item.channelIcon}" height="60" alt="Channel Icon"><br>` : ''}
+            ${item.channelIcon ? `<img src="${item.channelIcon}" class="channel-icon" alt="Ícono del canal"><br>` : ''}
             <div class="channel-name">${item.channel}</div>
           </td>
           <td>${item.date}<br><small>${item.start} - ${item.stop}</small></td>
-          <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="100">` : ''}</td>
+          <td>${item.iconSrc ? `<img src="${item.iconSrc}" class="program-img" alt="Imagen del programa">` : ''}</td>
           <td>
-            <span class="title" style="float:left">${item.title}</span>
-            ${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="80" align="right">` : ''}<br>
-            <span class="description" style="float:left">${item.description}</span>
+            ${item.iconSrc2 ? `<img src="${item.iconSrc2}" class="iconSrc2-img" alt="Imagen adicional">` : ''}
+            <span class="title">${item.title}</span>
+            <span class="description">${item.description}</span>
           </td>
         `;
         tableBody.appendChild(row);
@@ -307,8 +334,11 @@
       document.querySelector('.pagination-btn:nth-child(1)').disabled = currentPage === 0;
       document.querySelector('.pagination-btn:nth-child(2)').disabled = startIndex + 100 >= filteredData.length;
 
-      document.getElementById('result-count').textContent =
-        `Mostrando ${startIndex + 1} a ${startIndex + paginatedData.length} de ${filteredData.length} resultados (Página ${currentPage + 1})`;
+      document.getElementById('result-count').textContent = `Mostrando ${
+        startIndex + 1
+      } a ${startIndex + paginatedData.length} de ${filteredData.length} resultados (Página ${
+        currentPage + 1
+      })`;
     }
 
     function prevPage() {
