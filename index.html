@@ -296,9 +296,9 @@
           <td>${item.date}<br><small>${item.start} - ${item.stop}</small></td>
           <td>${item.iconSrc ? `<img src="${item.iconSrc}" height="100">` : ''}</td>
           <td>
-            <span class="title" style="float:left">${item.title}</span>
-            ${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="80" class="float-end">` : ''}<br>
-            <span class="description" style="float:left">${item.description}</span>
+            <span class="title">${item.title}</span><br>
+            ${item.iconSrc2 ? `<img src="${item.iconSrc2}" width="80" class="float-end" alt="Imagen adicional">` : ''}
+            <div class="description">${item.description}</div>
           </td>
         `;
         tableBody.appendChild(row);
