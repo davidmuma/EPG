@@ -139,6 +139,7 @@
       font-size: 0.85em;
       font-style: italic;
       color: #ccc;
+      white-space: pre-wrap; /* Respetar saltos de línea */
     }
 
     .pagination-btn {
@@ -168,7 +169,52 @@
 
     .channel-icon {
       height: 60px;
+      max-height: 60px;
+      max-width: 100px;
+      width: auto;
+      object-fit: contain;
       margin-bottom: 5px;
+      display: block;
+    }
+
+    /* Mejoras para móviles */
+    @media (max-width: 768px) {
+      #data-table th, #data-table td {
+        font-size: 0.8em;
+        padding: 8px;
+      }
+
+      .iconSrc-img,
+      .iconSrc2-img {
+        width: 60px;
+      }
+
+      .channel-icon {
+        height: 40px;
+      }
+
+      span.title {
+        font-size: 0.95em;
+      }
+
+      span.description {
+        font-size: 0.75em;
+      }
+
+      input[type="text"], select, button {
+        width: 90%;
+        margin: 5px auto;
+        display: block;
+      }
+
+      #controls {
+        padding: 10px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
     }
   </style>
 </head>
@@ -229,6 +275,16 @@
       }
     });
 
+    // Calcula duración en minutos entre start y stop en formato XMLTV completo
+    function calculateDuration(start, stop) {
+      if (!start || !stop) return '';
+      const parseTime = (t) => new Date(`${t.substring(0, 4)}-${t.substring(4, 6)}-${t.substring(6, 8)}T${t.substring(8, 10)}:${t.substring(10, 12)}:00`);
+      const startTime = parseTime(start);
+      const stopTime = parseTime(stop);
+      const diffMinutes = Math.round((stopTime - startTime) / 60000);
+      return isNaN(diffMinutes) || diffMinutes <= 0 ? '' : `${diffMinutes} min`;
+    }
+
     function parseXML(xmlText) {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
@@ -256,13 +312,14 @@
         const date = formatXMLTVDate(prog.getAttribute('start'));
         const start = formatXMLTVTime(prog.getAttribute('start'));
         const stop = formatXMLTVTime(prog.getAttribute('stop'));
+        const duration = calculateDuration(prog.getAttribute('start'), prog.getAttribute('stop'));
         const title = prog.getElementsByTagName('title')[0]?.textContent || '';
         const description = prog.getElementsByTagName('desc')[0]?.textContent || '';
         const iconSrc = prog.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
         const iconSrc2 = prog.getElementsByTagName('icon2')[0]?.getAttribute('src') || '';
         const channelIcon = channels[channel] || '';
 
-        epgData.push({ channel, channelIcon, date, start, stop, iconSrc, iconSrc2, title, description });
+        epgData.push({ channel, channelIcon, date, start, stop, duration, iconSrc, iconSrc2, title, description });
       }
 
       currentPage = 0;
@@ -327,7 +384,7 @@
             ${item.channelIcon ? `<img src="${item.channelIcon}" class="channel-icon" alt="Ícono del canal"><br>` : ''}
             <div class="channel-name">${item.channel}</div>
           </td>
-          <td>${item.date}<br><small>${item.start} - ${item.stop}</small></td>
+          <td>${item.date}<br><small>${item.start} - ${item.stop}<br><br>${item.duration ? `(${item.duration})` : ''}</small></td>
           <td>
             ${item.iconSrc ? `<img src="${item.iconSrc}" class="iconSrc-img" alt="Imagen del programa">` : ''}
             ${item.iconSrc2 ? `<img src="${item.iconSrc2}" class="iconSrc2-img" alt="Imagen adicional">` : ''}
@@ -353,17 +410,39 @@
     }
 
     function nextPage() {
-      const maxPages = Math.ceil(epgData.length / 100) - 1;
+      const filters = {
+        channel: document.getElementById('channelFilter').value.toLowerCase(),
+        title: document.getElementById('titleFilter').value.toLowerCase(),
+        description: document.getElementById('descriptionFilter').value.toLowerCase(),
+      };
+
+      const filteredData = epgData.filter(item =>
+        (!filters.channel || item.channel.toLowerCase().includes(filters.channel)) &&
+        (!filters.title || item.title.toLowerCase().includes(filters.title)) &&
+        (!filters.description || item.description.toLowerCase().includes(filters.description))
+      );
+
+      const maxPages = Math.ceil(filteredData.length / 100) - 1;
       if (currentPage < maxPages) {
         currentPage++;
         renderTable();
       }
     }
 
-    document.getElementById('channelFilter').addEventListener('input', renderTable);
-    document.getElementById('titleFilter').addEventListener('input', renderTable);
-    document.getElementById('descriptionFilter').addEventListener('input', renderTable);
+    document.getElementById('channelFilter').addEventListener('input', () => {
+      currentPage = 0;
+      renderTable();
+    });
+    document.getElementById('titleFilter').addEventListener('input', () => {
+      currentPage = 0;
+      renderTable();
+    });
+    document.getElementById('descriptionFilter').addEventListener('input', () => {
+      currentPage = 0;
+      renderTable();
+    });
 
+    // Carga inicial
     fetchXML();
   </script>
 </body>
