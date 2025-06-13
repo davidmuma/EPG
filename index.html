@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EPG dobleM - Mejorado</title>
+  <title>EPG dobleM - 2.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     body {
@@ -454,18 +455,34 @@
       }
     }
 
-    document.getElementById('channelFilter').addEventListener('input', () => {
-      currentPage = 0;
-      renderTable();
-    });
-    document.getElementById('titleFilter').addEventListener('input', () => {
-      currentPage = 0;
-      renderTable();
-    });
-    document.getElementById('descriptionFilter').addEventListener('input', () => {
-      currentPage = 0;
-      renderTable();
-    });
+// Cuando se escribe en cualquiera de los filtros de texto, se limpia el dropdown
+document.getElementById('channelFilter').addEventListener('input', () => {
+  document.getElementById('channelDropdown').value = '';
+  currentPage = 0;
+  renderTable();
+});
+
+document.getElementById('titleFilter').addEventListener('input', () => {
+  document.getElementById('channelDropdown').value = '';
+  currentPage = 0;
+  renderTable();
+});
+
+document.getElementById('descriptionFilter').addEventListener('input', () => {
+  document.getElementById('channelDropdown').value = '';
+  currentPage = 0;
+  renderTable();
+});
+
+// Cuando se elige un canal en el dropdown, se limpian los otros filtros
+document.getElementById('channelDropdown').addEventListener('change', (event) => {
+  const selectedChannel = event.target.value;
+  document.getElementById('channelFilter').value = selectedChannel || '';
+  document.getElementById('titleFilter').value = '';
+  document.getElementById('descriptionFilter').value = '';
+  currentPage = 0;
+  renderTable();
+});
 
     fetchXML();
   </script>
