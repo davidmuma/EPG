@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EPG dobleM - imágenes a ambos lados</title>
+  <title>EPG dobleM - Mejorado</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     body {
@@ -77,7 +77,7 @@
     #data-table td {
       border: 1px solid #444;
       padding: 10px;
-      text-align: center; /* Por defecto centrado */
+      text-align: center;
       vertical-align: middle;
     }
 
@@ -99,16 +99,13 @@
       background-color: #444;
     }
 
-    /* Última columna: texto alineado a la izquierda */
     #data-table td:last-child {
       text-align: left;
       white-space: normal;
       position: relative;
-      /* Para contener floats */
       overflow: hidden;
     }
 
-    /* Imagen iconSrc flotando a la izquierda */
     .iconSrc-img {
       float: left;
       width: 80px;
@@ -118,7 +115,6 @@
       border-radius: 6px;
     }
 
-    /* Imagen iconSrc2 flotando a la derecha */
     .iconSrc2-img {
       float: right;
       width: 80px;
@@ -139,7 +135,7 @@
       font-size: 0.85em;
       font-style: italic;
       color: #ccc;
-      white-space: pre-wrap; /* Respetar saltos de línea */
+      white-space: pre-wrap;
     }
 
     .pagination-btn {
@@ -177,7 +173,6 @@
       display: block;
     }
 
-    /* Mejoras para móviles */
     @media (max-width: 768px) {
       #data-table th, #data-table td {
         font-size: 0.8em;
@@ -216,6 +211,11 @@
         overflow-x: auto;
       }
     }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 
@@ -234,6 +234,11 @@
     <label for="myfile">Usar otro xml:</label>
     <input accept=".xml" type="file" id="fileInput" />
     <br /><br />
+  </div>
+
+  <div id="loader" style="display: none; text-align:center; margin-top:20px;">
+    <span style="display:inline-block; border:4px solid #00e5ff; border-top:4px solid transparent; border-radius:50%; width:40px; height:40px; animation: spin 1s linear infinite;"></span>
+    <p style="color:#ccc;">Cargando EPG...</p>
   </div>
 
   <table id="data-table">
@@ -260,29 +265,49 @@
     let channelsList = [];
 
     async function fetchXML() {
-      const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/EPG_dobleM.xml';
-      const response = await fetch(url);
-      const xmlText = await response.text();
-      parseXML(xmlText);
+      const loader = document.getElementById('loader');
+      loader.style.display = 'block';
+      try {
+        const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/EPG_dobleM.xml';
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("No se pudo cargar el archivo EPG.");
+        const xmlText = await response.text();
+        parseXML(xmlText);
+      } catch (err) {
+        alert("Error al cargar el EPG: " + err.message);
+      } finally {
+        loader.style.display = 'none';
+      }
     }
 
-    document.getElementById('fileInput').addEventListener('change', async (event) => {
+    document.getElementById('fileInput').addEventListener('change', (event) => {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = (e) => parseXML(e.target.result);
+        reader.onload = (e) => {
+          try {
+            parseXML(e.target.result);
+          } catch (err) {
+            alert("Error al analizar el archivo XML: " + err.message);
+          }
+        };
         reader.readAsText(file);
       }
     });
 
-    // Calcula duración en minutos entre start y stop en formato XMLTV completo
     function calculateDuration(start, stop) {
       if (!start || !stop) return '';
       const parseTime = (t) => new Date(`${t.substring(0, 4)}-${t.substring(4, 6)}-${t.substring(6, 8)}T${t.substring(8, 10)}:${t.substring(10, 12)}:00`);
       const startTime = parseTime(start);
       const stopTime = parseTime(stop);
       const diffMinutes = Math.round((stopTime - startTime) / 60000);
-      return isNaN(diffMinutes) || diffMinutes <= 0 ? '' : `${diffMinutes} min`;
+      return isNaN(diffMinutes) || diffMinutes <= 0 ? '' : formatDuration(diffMinutes);
+    }
+
+    function formatDuration(minutes) {
+      const h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+      return `${h > 0 ? `${h} h ` : ''}${m} min`;
     }
 
     function parseXML(xmlText) {
@@ -303,7 +328,7 @@
         channelsList.push(channelId);
       }
 
-      channelsList = [...new Set(channelsList)];
+      channelsList = [...new Set(channelsList)].sort();
       populateChannelDropdown();
 
       for (let i = 0; i < programmes.length; i++) {
@@ -381,13 +406,13 @@
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>
-            ${item.channelIcon ? `<img src="${item.channelIcon}" class="channel-icon" alt="Ícono del canal"><br>` : ''}
+            ${item.channelIcon ? `<img src="${item.channelIcon}" class="channel-icon" alt="Logo del canal ${item.channel}"><br>` : ''}
             <div class="channel-name">${item.channel}</div>
           </td>
           <td>${item.date}<br><small>${item.start} - ${item.stop}<br><br>${item.duration ? `(${item.duration})` : ''}</small></td>
           <td>
-            ${item.iconSrc ? `<img src="${item.iconSrc}" class="iconSrc-img" alt="Imagen del programa">` : ''}
-            ${item.iconSrc2 ? `<img src="${item.iconSrc2}" class="iconSrc2-img" alt="Imagen adicional">` : ''}
+            ${item.iconSrc ? `<img src="${item.iconSrc}" class="iconSrc-img" alt="Imagen del programa ${item.title}">` : ''}
+            ${item.iconSrc2 ? `<img src="${item.iconSrc2}" class="iconSrc2-img" alt="Imagen adicional de ${item.title}">` : ''}
             <span class="title">${item.title}</span>
             <span class="description">${item.description}</span>
           </td>
@@ -442,7 +467,6 @@
       renderTable();
     });
 
-    // Carga inicial
     fetchXML();
   </script>
 </body>
