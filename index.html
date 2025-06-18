@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EPG dobleM - 2.0</title>
+  <title>EPG dobleM - 3.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     body {
@@ -11,6 +11,7 @@
       color: #fff;
       background: linear-gradient(180deg, #1e1e1e, #2b2b2b);
       padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     h1 {
@@ -78,10 +79,6 @@
       color: #ddd;
     }
 
-    input[type="file"] {
-      color: #fff;
-    }
-
     .pagination-btn {
       margin: 10px 5px;
     }
@@ -96,11 +93,12 @@
     .program-card {
       background-color: #1a1a1a;
       padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.4);
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.5);
       display: flex;
       flex-direction: column;
       color: #fff;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     .card-header {
@@ -218,10 +216,40 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
+    /* Light mode overrides */
+    body.light-mode {
+      background: linear-gradient(180deg, #f4f4f4, #e6e6e6);
+      color: #000;
+    }
+
+    body.light-mode .program-card {
+      background-color: #fff;
+      color: #000;
+    }
+
+    body.light-mode .card-date,
+    body.light-mode .card-time,
+    body.light-mode .card-text .title {
+      color: #000;
+    }
+
+    body.light-mode .card-text .description {
+      color: #333;
+    }
+
+    body.light-mode #controls {
+      background-color: #ddd;
+    }
+
+    body.light-mode button {
+      background-color: #00bcd4;
+      color: #000;
+    }
   </style>
 </head>
 <body>
-  <h1>EPG dobleM</h1>
+  <h1>EPG dobleM       </h1>
 
   <div id="controls">
     <select id="channelDropdown">
@@ -231,7 +259,11 @@
     <input type="text" id="titleFilter" placeholder="Filtrar por Título" />
     <input type="text" id="descriptionFilter" placeholder="Filtrar por Descripción" />
     <br /><br />
-    <button onclick="fetchXML()">Recargar EPG dobleM</button><br /><br />
+
+      <button onclick="fetchXML()">Recargar EPG dobleM</button>
+      <button onclick="toggleDarkMode()" id="themeToggleBtn">🌙</button>
+
+    <br /><br />
     <label for="myfile">Usar otro xml:</label>
     <input accept=".xml" type="file" id="fileInput" />
     <br /><br />
@@ -243,7 +275,6 @@
   </div>
 
   <div id="data-list"></div>
-
   <div id="result-count"></div>
 
   <div style="text-align: center;">
@@ -436,7 +467,12 @@
       renderTable();
     }
 
-    // Filtros disparan render
+    function toggleDarkMode() {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      document.getElementById('themeToggleBtn').textContent = isLight ? '☀️' : '🌙';
+    }
+
     ['channelFilter', 'titleFilter', 'descriptionFilter', 'channelDropdown'].forEach(id => {
       document.getElementById(id).addEventListener('input', () => {
         if(id === 'channelDropdown') {
@@ -447,7 +483,6 @@
       });
     });
 
-    // Carga inicial
     fetchXML();
   </script>
 </body>
