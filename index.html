@@ -194,6 +194,13 @@
     color: #ccc;
     white-space: pre-wrap;
   }
+  
+  .card-time .duration {
+  font-size: 0.75em;
+  color: #ccc;
+  margin-left: 5px;
+}
+
 
   @media (max-width: 768px) {
     .card-body {
@@ -452,7 +459,11 @@
           <div class="card-header">
             <div class="card-info">
               <div class="card-date">${item.date}</div>
-              <div class="card-time">${item.start} - ${item.stop} ${item.duration ? `(${item.duration})` : ''}</div>
+<div class="card-time">
+  ${item.start} - ${item.stop}
+  ${item.duration ? `<span class="duration">(${item.duration})</span>` : ''}
+</div>
+
             </div>
             <div class="card-channel">
               ${item.channelIcon ? `<img src="${item.channelIcon}" alt="${item.channel}">` : ''}
