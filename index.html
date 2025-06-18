@@ -122,21 +122,25 @@
     flex-wrap: wrap;
   }
 
-  .card-date,
-  .card-time {
-    display: block;
-  }
-
   .card-date {
+      display: block;
     font-weight: bold;
     color: #00e5ff;
+        font-size: 1.0em;
   }
 
   .card-time {
+      display: block;
     color: #fff;
     font-weight: bold;
-    font-size: 0.85em;
+    font-size: 0.9em;
   }
+  
+.card-time .duration {
+  font-size: 0.8em;
+  color: #ccc;
+  margin-left: 5px;
+}
 
   .card-channel {
     display: flex;
@@ -153,11 +157,10 @@
   border-radius: 4px;
 }
 
-
-  .channel-name {
-    font-size: 0.9em;
-    color: #ccc;
-  }
+.channel-name {
+  font-size: 0.75em; /* más pequeño */
+  color: #ccc;
+}
 
   .card-body {
     display: flex;
@@ -196,13 +199,6 @@
     white-space: pre-wrap;
   }
   
-  .card-time .duration {
-  font-size: 0.75em;
-  color: #ccc;
-  margin-left: 5px;
-}
-
-
   @media (max-width: 768px) {
     .card-body {
       flex-direction: column;
