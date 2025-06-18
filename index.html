@@ -66,82 +66,6 @@
       cursor: not-allowed;
     }
 
-    #data-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #000;
-      margin-top: 20px;
-    }
-
-    #data-table th,
-    #data-table td {
-      border: 1px solid #444;
-      padding: 10px;
-      text-align: center;
-      vertical-align: middle;
-    }
-
-    #data-table th {
-      background: #333;
-      font-weight: 600;
-      color: #00e5ff;
-    }
-
-    tbody tr:nth-child(odd) {
-      background-color: #2c2c2c;
-    }
-
-    tbody tr:nth-child(even) {
-      background-color: #383838;
-    }
-
-    tbody tr:hover {
-      background-color: #444;
-    }
-
-    #data-table td:last-child {
-      text-align: left;
-      white-space: normal;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .iconSrc-img {
-      float: left;
-      width: 80px;
-      height: auto;
-      margin-right: 10px;
-      object-fit: contain;
-      border-radius: 6px;
-    }
-
-    .iconSrc2-img {
-      float: right;
-      width: 80px;
-      height: auto;
-      margin-left: 10px;
-      object-fit: contain;
-      border-radius: 6px;
-    }
-
-    span.title {
-      font-size: 1em;
-      font-weight: 600;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    span.description {
-      font-size: 0.85em;
-      font-style: italic;
-      color: #ccc;
-      white-space: pre-wrap;
-    }
-
-    .pagination-btn {
-      margin: 10px 5px;
-    }
-
     #result-count {
       text-align: center;
       margin: 15px 0;
@@ -158,42 +82,125 @@
       color: #fff;
     }
 
+    .pagination-btn {
+      margin: 10px 5px;
+    }
+
+    #data-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .program-card {
+      background-color: #1a1a1a;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      color: #fff;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: nowrap;
+      margin-bottom: 12px;
+    }
+
+    .card-info {
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      color: #ccc;
+      font-size: 0.9em;
+    }
+
+    .card-date {
+      font-weight: bold;
+      color: #00e5ff;
+    }
+
+    .card-time {
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .card-channel {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 120px;
+    }
+
+    .card-channel img {
+      height: 40px;
+      object-fit: contain;
+      border-radius: 4px;
+    }
+
     .channel-name {
-      font-size: 0.85em;
+      font-size: 0.9em;
       color: #ccc;
     }
 
-    .channel-icon {
-      height: 60px;
-      max-height: 60px;
-      max-width: 100px;
-      width: auto;
+    .card-body {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .card-images {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-images img {
+      width: 90px;
+      border-radius: 6px;
       object-fit: contain;
+    }
+
+    .card-text {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .card-text .title {
+      font-weight: bold;
+      font-size: 1em;
       margin-bottom: 5px;
-      display: block;
+      color: #fff;
+    }
+
+    .card-text .description {
+      font-size: 0.85em;
+      font-style: italic;
+      color: #ccc;
+      white-space: pre-wrap;
     }
 
     @media (max-width: 768px) {
-      #data-table th, #data-table td {
-        font-size: 0.8em;
-        padding: 8px;
+      .card-body {
+        flex-direction: column;
+        align-items: flex-start;
       }
 
-      .iconSrc-img,
-      .iconSrc2-img {
-        width: 60px;
+      .card-images {
+        flex-direction: row;
+        gap: 10px;
       }
 
-      .channel-icon {
-        height: 40px;
+      .card-images img {
+        width: 70px;
       }
 
-      span.title {
-        font-size: 0.95em;
-      }
-
-      span.description {
-        font-size: 0.75em;
+      .card-text {
+        margin-top: 10px;
       }
 
       input[type="text"], select, button {
@@ -205,11 +212,6 @@
       #controls {
         padding: 10px;
       }
-
-      table {
-        display: block;
-        overflow-x: auto;
-      }
     }
 
     @keyframes spin {
@@ -218,7 +220,6 @@
     }
   </style>
 </head>
-
 <body>
   <h1>EPG dobleM</h1>
 
@@ -241,16 +242,7 @@
     <p style="color:#ccc;">Cargando EPG...</p>
   </div>
 
-  <table id="data-table">
-    <thead>
-      <tr>
-        <th>Canal</th>
-        <th>Fecha y Hora</th>
-        <th>Programa</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div id="data-list"></div>
 
   <div id="result-count"></div>
 
@@ -377,12 +369,6 @@
       });
     }
 
-    document.getElementById('channelDropdown').addEventListener('change', (event) => {
-      const selectedChannel = event.target.value;
-      document.getElementById('channelFilter').value = selectedChannel;
-      renderTable();
-    });
-
     function renderTable() {
       const filters = {
         channel: document.getElementById('channelFilter').value.toLowerCase(),
@@ -399,32 +385,43 @@
       const startIndex = currentPage * 100;
       const paginatedData = filteredData.slice(startIndex, startIndex + 100);
 
-      const tableBody = document.querySelector('#data-table tbody');
-      tableBody.innerHTML = '';
+      const dataList = document.getElementById('data-list');
+      dataList.innerHTML = '';
 
       paginatedData.forEach(item => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>
-            ${item.channelIcon ? `<img src="${item.channelIcon}" class="channel-icon" alt="Logo del canal ${item.channel}"><br>` : ''}
-            <div class="channel-name">${item.channel}</div>
-          </td>
-          <td>${item.date}<br><small>${item.start} - ${item.stop}<br><br>${item.duration ? `(${item.duration})` : ''}</small></td>
-          <td>
-            ${item.iconSrc ? `<img src="${item.iconSrc}" class="iconSrc-img" alt="Imagen del programa ${item.title}">` : ''}
-            ${item.iconSrc2 ? `<img src="${item.iconSrc2}" class="iconSrc2-img" alt="Imagen adicional de ${item.title}">` : ''}
-            <span class="title">${item.title}</span>
-            <span class="description">${item.description}</span>
-          </td>
+        const card = document.createElement('div');
+        card.className = 'program-card';
+
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="card-info">
+              <div class="card-date">${item.date}</div>
+              <div class="card-time">${item.start} - ${item.stop} ${item.duration ? `(${item.duration})` : ''}</div>
+            </div>
+            <div class="card-channel">
+              ${item.channelIcon ? `<img src="${item.channelIcon}" alt="${item.channel}">` : ''}
+              <div class="channel-name">${item.channel}</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-images">
+              ${item.iconSrc ? `<img src="${item.iconSrc}" alt="Imagen de ${item.title}">` : ''}
+              ${item.iconSrc2 ? `<img src="${item.iconSrc2}" alt="Imagen 2 de ${item.title}">` : ''}
+            </div>
+            <div class="card-text">
+              <div class="title">${item.title}</div>
+              <div class="description">${item.description}</div>
+            </div>
+          </div>
         `;
-        tableBody.appendChild(row);
+
+        dataList.appendChild(card);
       });
 
-      document.querySelector('.pagination-btn:nth-child(1)').disabled = currentPage === 0;
-      document.querySelector('.pagination-btn:nth-child(2)').disabled = startIndex + 100 >= filteredData.length;
+      document.getElementById('result-count').textContent = `Mostrando ${paginatedData.length} de ${filteredData.length} programas`;
 
-      document.getElementById('result-count').textContent =
-        `Mostrando ${startIndex + 1} a ${startIndex + paginatedData.length} de ${filteredData.length} resultados (Página ${currentPage + 1})`;
+      document.querySelector('button[onclick="prevPage()"]').disabled = currentPage === 0;
+      document.querySelector('button[onclick="nextPage()"]').disabled = startIndex + 100 >= filteredData.length;
     }
 
     function prevPage() {
@@ -435,54 +432,22 @@
     }
 
     function nextPage() {
-      const filters = {
-        channel: document.getElementById('channelFilter').value.toLowerCase(),
-        title: document.getElementById('titleFilter').value.toLowerCase(),
-        description: document.getElementById('descriptionFilter').value.toLowerCase(),
-      };
-
-      const filteredData = epgData.filter(item =>
-        (!filters.channel || item.channel.toLowerCase().includes(filters.channel)) &&
-        (!filters.title || item.title.toLowerCase().includes(filters.title)) &&
-        (!filters.description || item.description.toLowerCase().includes(filters.description))
-      );
-
-      const maxPages = Math.ceil(filteredData.length / 100) - 1;
-      if (currentPage < maxPages) {
-        currentPage++;
-        renderTable();
-      }
+      currentPage++;
+      renderTable();
     }
 
-// Cuando se escribe en cualquiera de los filtros de texto, se limpia el dropdown
-document.getElementById('channelFilter').addEventListener('input', () => {
-  document.getElementById('channelDropdown').value = '';
-  currentPage = 0;
-  renderTable();
-});
+    // Filtros disparan render
+    ['channelFilter', 'titleFilter', 'descriptionFilter', 'channelDropdown'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        if(id === 'channelDropdown') {
+          document.getElementById('channelFilter').value = document.getElementById(id).value;
+        }
+        currentPage = 0;
+        renderTable();
+      });
+    });
 
-document.getElementById('titleFilter').addEventListener('input', () => {
-  document.getElementById('channelDropdown').value = '';
-  currentPage = 0;
-  renderTable();
-});
-
-document.getElementById('descriptionFilter').addEventListener('input', () => {
-  document.getElementById('channelDropdown').value = '';
-  currentPage = 0;
-  renderTable();
-});
-
-// Cuando se elige un canal en el dropdown, se limpian los otros filtros
-document.getElementById('channelDropdown').addEventListener('change', (event) => {
-  const selectedChannel = event.target.value;
-  document.getElementById('channelFilter').value = selectedChannel || '';
-  document.getElementById('titleFilter').value = '';
-  document.getElementById('descriptionFilter').value = '';
-  currentPage = 0;
-  renderTable();
-});
-
+    // Carga inicial
     fetchXML();
   </script>
 </body>
