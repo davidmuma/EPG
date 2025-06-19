@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -7,298 +8,324 @@
     <title>EPG dobleM - 3.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            color: #fff;
-            background: linear-gradient(180deg, #1e1e1e, #2b2b2b);
-            padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
-        }
+:root {
+    --color-bg-dark-start: #1e1e1e;
+    --color-bg-dark-end: #2b2b2b;
+    --color-bg-light-start: #f4f4f4;
+    --color-bg-light-end: #e6e6e6;
+    --color-primary: #00e5ff;
+    --color-primary-hover: #00bcd4;
+    --color-text-dark: #fff;
+    --color-text-light: #000;
+    --color-text-muted-dark: #ccc;
+    --color-text-muted-light: #333;
+    --color-bg-input-dark: #444;
+    --color-border-input-dark: #777;
+    --color-bg-controls-dark: #2e2e2e;
+    --color-bg-controls-light: #ddd;
+    --color-bg-card-dark: #1a1a1a;
+    --color-bg-card-light: #fff;
+}
 
-        h1 {
-            text-align: center;
-            font-size: 2rem;
-            color: #00e5ff;
-            margin-bottom: 20px;
-        }
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--color-text-dark);
+    background: linear-gradient(180deg, var(--color-bg-dark-start), var(--color-bg-dark-end));
+    padding: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
 
-        #controls {
-            margin-bottom: 25px;
-            text-align: center;
-            background: #2e2e2e;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
-        }
+h1 {
+    text-align: center;
+    font-size: 2rem;
+    color: var(--color-primary);
+    margin-bottom: 20px;
+}
 
-        input[type="text"],
-        select {
-            padding: 10px;
-            margin: 8px;
-            border-radius: 6px;
-            border: 1px solid #555;
-            background-color: #444;
-            color: white;
-            font-size: 0.95em;
-        }
+#controls {
+    margin-bottom: 25px;
+    text-align: center;
+    background: var(--color-bg-controls-dark);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
 
-        input[type="text"]:focus,
-        select:focus {
-            outline: none;
-            border-color: #00e5ff;
-        }
+input[type="text"],
+select {
+    padding: 10px;
+    margin: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border-input-dark);
+    background-color: var(--color-bg-input-dark);
+    color: var(--color-text-dark);
+    font-size: 0.95em;
+    cursor: text;
+}
 
-        button {
-            font-size: 1em;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            background-color: #00e5ff;
-            color: #000;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+input[type="text"]:focus,
+select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
 
-        button:hover {
-            background-color: #00bcd4;
-        }
+button {
+    font-size: 1em;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--color-primary);
+    color: #000;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
 
-        button:disabled {
-            background-color: #666;
-            cursor: not-allowed;
-        }
+button:hover {
+    background-color: var(--color-primary-hover);
+}
 
-        #result-count {
-            text-align: center;
-            margin: 15px 0;
-            font-size: 0.95em;
-            color: #aaa;
-        }
+button:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+}
 
-        label {
-            font-size: 0.95em;
-            color: #ddd;
-        }
+#result-count {
+    text-align: center;
+    margin: 15px 0;
+    font-size: 0.95em;
+    color: var(--color-text-muted-dark);
+}
 
-        .pagination-btn {
-            margin: 10px 5px;
-        }
+label {
+    font-size: 0.95em;
+    color: #ddd;
+}
 
-        #data-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
-        }
+.pagination-btn {
+    margin: 10px 5px;
+}
 
-        .program-card {
-            background-color: #1a1a1a;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
-            display: flex;
-            flex-direction: column;
-            color: #fff;
-            transition: box-shadow 0.3s ease;
-        }
+#data-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
 
-        .program-card:hover {
-            box-shadow: 0 4px 16px rgba(0, 229, 255, 0.6);
-        }
+.program-card {
+    background-color: var(--color-bg-card-dark);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+    color: var(--color-text-dark);
+    transition: box-shadow 0.3s ease;
+}
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: nowrap;
-            margin-bottom: 12px;
-        }
+.program-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 229, 255, 0.6);
+}
 
-        .card-info {
-            display: flex;
-            gap: 10px;
-            align-items: baseline;
-            color: #ccc;
-            font-size: 0.9em;
-            flex-wrap: wrap;
-        }
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+    margin-bottom: 12px;
+}
 
-        .card-date {
-            display: block;
-            font-weight: bold;
-            color: #00e5ff;
-            font-size: 1.0em;
-        }
+.card-info {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    color: var(--color-text-muted-dark);
+    font-size: 0.9em;
+    flex-wrap: wrap;
+}
 
-        .card-time {
-            display: block;
-            color: #fff;
-            font-weight: bold;
-            font-size: 0.9em;
-        }
+.card-date {
+    display: block;
+    font-weight: bold;
+    color: var(--color-primary);
+    font-size: 1.0em;
+}
 
-        .card-time .duration {
-            font-size: 0.8em;
-            color: #ccc;
-            margin-left: 5px;
-        }
+.card-time {
+    display: block;
+    color: var(--color-text-dark);
+    font-weight: bold;
+    font-size: 0.9em;
+}
 
-        .card-channel {
-            display: flex;
-            align-items: center;
-            gap: 1px;
-            /* menos espacio */
-            min-width: 120px;
-            flex-direction: row;
-        }
+.card-time .duration {
+    font-size: 0.8em;
+    color: var(--color-text-muted-dark);
+    margin-left: 5px;
+}
 
-        .card-channel img {
-            height: 32px;
-            width: auto;
-            max-width: 60px;
-            /* menos ancho máximo */
-            object-fit: contain;
-            border-radius: 1px;
-            margin: 0;
-            padding: 0;
-        }
+.card-channel {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    min-width: 120px;
+    flex-direction: row;
+}
 
-        .channel-name {
-            font-size: 0.75em;
-            /* más pequeño */
-            color: #ccc;
-        }
+.card-channel img {
+    height: 32px;
+    width: auto;
+    max-width: 60px;
+    object-fit: contain;
+    border-radius: 1px;
+    margin: 0;
+    padding: 0;
+}
 
-        .card-body {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+.channel-name {
+    font-size: 0.75em;
+    color: var(--color-text-muted-dark);
+}
 
-        .card-images {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+.card-body {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
 
-        .card-images img {
-            width: 90px;
-            border-radius: 6px;
-            object-fit: contain;
-        }
+.card-images {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 
-        .card-text {
-            flex: 1;
-            min-width: 200px;
-        }
+.card-images img {
+    width: 90px;
+    border-radius: 6px;
+    object-fit: contain;
+}
 
-        .card-text .title {
-            font-weight: bold;
-            font-size: 1em;
-            margin-bottom: 5px;
-            color: #fff;
-        }
+.card-text {
+    flex: 1;
+    min-width: 200px;
+}
 
-        .card-text .description {
-            font-size: 0.85em;
-            font-style: italic;
-            color: #ccc;
-            white-space: pre-wrap;
-        }
+.card-text .title {
+    font-weight: bold;
+    font-size: 1em;
+    margin-bottom: 5px;
+    color: var(--color-text-dark);
+}
 
-        /* Light mode overrides */
-        body.light-mode {
-            background: linear-gradient(180deg, #f4f4f4, #e6e6e6);
-            color: #000;
-        }
+.card-text .description {
+    font-size: 0.85em;
+    font-style: italic;
+    color: var(--color-text-muted-dark);
+    white-space: pre-wrap;
+}
 
-        body.light-mode .program-card {
-            background-color: #fff;
-            color: #000;
-        }
+/* Loader spinner styles moved to CSS */
+#loader-spinner {
+    display: inline-block;
+    border: 4px solid var(--color-primary);
+    border-top: 4px solid transparent;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
 
-        body.light-mode .card-date,
-        body.light-mode .card-time,
-        body.light-mode .card-text .title {
-            color: #000;
-        }
+/* Light mode overrides */
+body.light-mode {
+    background: linear-gradient(180deg, var(--color-bg-light-start), var(--color-bg-light-end));
+    color: var(--color-text-light);
+}
 
-        body.light-mode .card-text .description {
-            color: #333;
-        }
+body.light-mode .program-card {
+    background-color: var(--color-bg-card-light);
+    color: var(--color-text-light);
+}
 
-        body.light-mode #controls {
-            background-color: #ddd;
-        }
+body.light-mode .card-date,
+body.light-mode .card-time,
+body.light-mode .card-text .title {
+    color: var(--color-text-light);
+}
 
-        body.light-mode button {
-            background-color: #00bcd4;
-            color: #000;
-        }
+body.light-mode .card-text .description {
+    color: var(--color-text-muted-light);
+}
 
-        @media (max-width: 768px) {
-            .card-body {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+body.light-mode #controls {
+    background-color: var(--color-bg-controls-light);
+}
 
-            .card-images {
-                flex-direction: row;
-                gap: 10px;
-            }
+body.light-mode button {
+    background-color: var(--color-primary-hover);
+    color: var(--color-text-light);
+}
 
-            .card-images img {
-                width: 70px;
-            }
-        }
+/* Responsive styles */
+@media (max-width: 768px) {
+    .card-body {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-        @media (max-width: 768px) {
-            .card-channel {
-                flex-direction: column-reverse;
-                /* En pantallas pequeñas, vertical */
-                align-items: center;
-            }
+    .card-images {
+        flex-direction: row;
+        gap: 10px;
+    }
 
-            .card-images img:first-child,
-            .card-images img:last-child {
-                height: 90px;
-                max-width: 90px;
-                width: auto;
-                object-fit: contain;
-            }
+    .card-images img {
+        width: 70px;
+    }
 
-            input[type="text"],
-            select,
-            button {
-                width: 90%;
-                margin: 5px auto;
-                display: block;
-            }
+    .card-channel {
+        flex-direction: column-reverse;
+        align-items: center;
+    }
 
-            #controls {
-                padding: 10px;
-            }
+    .card-images img:first-child,
+    .card-images img:last-child {
+        height: 90px;
+        max-width: 90px;
+        width: auto;
+        object-fit: contain;
+    }
 
-            .card-info {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+    input[type="text"],
+    select,
+    button {
+        width: 90%;
+        margin: 5px auto;
+        display: block;
+    }
 
-            .card-time {
-                margin-top: 4px;
-            }
-        }
+    #controls {
+        padding: 10px;
+    }
 
+    .card-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
+    .card-time {
+        margin-top: 4px;
+    }
+}
 
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
     </style>
 
 </head>
@@ -325,7 +352,7 @@
     </div>
 
     <div id="loader" style="display: none; text-align:center; margin-top:20px;">
-        <span style="display:inline-block; border:4px solid #00e5ff; border-top:4px solid transparent; border-radius:50%; width:40px; height:40px; animation: spin 1s linear infinite;"></span>
+<span id="loader-spinner"></span>
         <p style="color:#ccc;">Cargando EPG...</p>
     </div>
 
@@ -550,24 +577,16 @@
             renderTable();
         });
 
-        function debounce(func, wait) {
-            let timeout;
-            return function(...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(this, args), wait);
-            };
-        }
-
         // Listeners para los filtros de texto
-        const debouncedRender = debounce(() => {
-            document.getElementById('channelDropdown').value = '';
-            currentPage = 0;
-            renderTable();
-        }, 300);
-
         ['channelFilter', 'titleFilter', 'descriptionFilter'].forEach(id => {
-            document.getElementById(id).addEventListener('input', debouncedRender);
+            document.getElementById(id).addEventListener('input', () => {
+                // Al filtrar por texto, limpiar el dropdown
+                document.getElementById('channelDropdown').value = '';
+                currentPage = 0;
+                renderTable();
+            });
         });
+
 
         fetchXML();
     </script>
