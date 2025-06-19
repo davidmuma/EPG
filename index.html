@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>EPG dobleM - 3.0</title>
+    <title>EPG dobleM - 3.5</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
     <style>
         :root {
@@ -338,10 +338,12 @@
 <body>
     <h1>EPG dobleM </h1>
 
-    <div id="top-buttons" style="text-align: center; margin-bottom: 20px;">
-        <button onclick="toggleDarkMode()" id="themeToggleBtn">🌙</button>
-        <button onclick="fetchXML()" id="reloadBtn" title="Recargar EPG dobleM">↻</button>
-    </div>
+<div id="top-buttons" style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: nowrap;">
+        <button onclick="toggleDarkMode()" id="themeToggleBtn" title="Cambiar tema">🌙</button>
+    <button onclick="fetchXML()" id="reloadBtn" title="Recargar EPG">↻</button>
+    <button id="uploadXmlBtn" title="Usar otro XML">📂</button>
+    <input accept=".xml" type="file" id="fileInput" style="display:none;" />
+</div>
 
     <div id="controls">
         <select id="channelDropdown">
@@ -350,9 +352,6 @@
         <input type="text" id="channelFilter" placeholder="Filtrar por Canal" />
         <input type="text" id="titleFilter" placeholder="Filtrar por Título" />
         <input type="text" id="descriptionFilter" placeholder="Filtrar por Descripción" />
-        <br />
-        <label for="myfile">Usar otro xml:</label>
-        <input accept=".xml" type="file" id="fileInput" />
         <br />
     </div>
 
@@ -595,6 +594,9 @@
                 renderTable();
             });
         });
+document.getElementById('uploadXmlBtn').addEventListener('click', () => {
+    document.getElementById('fileInput').click();
+});
 
 
         fetchXML();
