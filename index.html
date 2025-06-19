@@ -250,67 +250,55 @@
             .card-images img {
                 width: 70px;
             }
+        }
 
-            .card-text {
-                margin-top: 10px;
+        @media (max-width: 768px) {
+            .card-channel {
+                flex-direction: column-reverse;
+                /* En pantallas pequeñas, vertical */
+                align-items: center;
             }
 
-            @media (max-width: 768px) {
-                .card-channel {
-                    flex-direction: column-reverse;
-                    /* En pantallas pequeñas, vertical */
-                    align-items: center;
-                }
-
-                .card-images img:first-child {
-                    height: 90px;
-                    /* igual altura que el icon principal */
-                    max-width: 90px;
-                    /* no más ancho que la altura */
-                    width: auto;
-                    object-fit: contain;
-                }
-
-                .card-images img:last-child {
-                    height: 90px;
-                    /* igual altura que el icon principal */
-                    max-width: 90px;
-                    /* no más ancho que la altura */
-                    width: auto;
-                    object-fit: contain;
-                }
-
-                input[type="text"],
-                select,
-                button {
-                    width: 90%;
-                    margin: 5px auto;
-                    display: block;
-                }
-
-                #controls {
-                    padding: 10px;
-                }
-
-                .card-info {
-                    flex-direction: column;
-                    align-items: flex-start;
-                }
-
-                .card-time {
-                    margin-top: 4px;
-                }
+            .card-images img:first-child,
+            .card-images img:last-child {
+                height: 90px;
+                max-width: 90px;
+                width: auto;
+                object-fit: contain;
             }
 
-            @keyframes spin {
-                0% {
-                    transform: rotate(0deg);
-                }
-
-                100% {
-                    transform: rotate(360deg);
-                }
+            input[type="text"],
+            select,
+            button {
+                width: 90%;
+                margin: 5px auto;
+                display: block;
             }
+
+            #controls {
+                padding: 10px;
+            }
+
+            .card-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card-time {
+                margin-top: 4px;
+            }
+        }
+
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 
 </head>
@@ -562,16 +550,24 @@
             renderTable();
         });
 
-        // Listeners para los filtros de texto
-        ['channelFilter', 'titleFilter', 'descriptionFilter'].forEach(id => {
-            document.getElementById(id).addEventListener('input', () => {
-                // Al filtrar por texto, limpiar el dropdown
-                document.getElementById('channelDropdown').value = '';
-                currentPage = 0;
-                renderTable();
-            });
-        });
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
 
+        // Listeners para los filtros de texto
+        const debouncedRender = debounce(() => {
+            document.getElementById('channelDropdown').value = '';
+            currentPage = 0;
+            renderTable();
+        }, 300);
+
+        ['channelFilter', 'titleFilter', 'descriptionFilter'].forEach(id => {
+            document.getElementById(id).addEventListener('input', debouncedRender);
+        });
 
         fetchXML();
     </script>
