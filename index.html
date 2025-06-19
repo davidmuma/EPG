@@ -145,18 +145,19 @@
 .card-channel {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 1px; /* menos espacio */
   min-width: 120px;
-  flex-direction: row; /* por defecto horizontal */
+  flex-direction: row;
 }
-
 
 .card-channel img {
   height: 32px;
   width: auto;
-  max-width: 100px;
+  max-width: 60px; /* menos ancho máximo */
   object-fit: contain;
-  border-radius: 4px;
+  border-radius: 1px;
+  margin: 0;
+  padding: 0;
 }
 
 .channel-name {
