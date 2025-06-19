@@ -142,12 +142,14 @@
   margin-left: 5px;
 }
 
-  .card-channel {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 120px;
-  }
+.card-channel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+  flex-direction: row; /* por defecto horizontal */
+}
+
 
 .card-channel img {
   height: 32px;
@@ -217,6 +219,19 @@
     .card-text {
       margin-top: 10px;
     }
+    
+    @media (max-width: 768px) {
+  .card-channel {
+    flex-direction: column; /* En pantallas pequeñas, vertical */
+    align-items: center;
+  }
+
+  .card-images img:last-child {
+    height: 100px; /* misma altura que icon principal */
+    width: auto;
+  }
+}
+
 
     input[type="text"], select, button {
       width: 90%;
