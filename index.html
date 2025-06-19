@@ -222,6 +222,13 @@
             color: var(--color-text-muted-dark);
             white-space: pre-wrap;
         }
+        
+        #top-buttons {
+    display: inline-flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: nowrap; /* que no se envuelvan */
+}
 
         /* Loader spinner styles moved to CSS */
         #loader-spinner {
@@ -331,6 +338,11 @@
 <body>
     <h1>EPG dobleM </h1>
 
+    <div id="top-buttons" style="text-align: center; margin-bottom: 20px;">
+        <button onclick="toggleDarkMode()" id="themeToggleBtn">🌙</button>
+        <button onclick="fetchXML()" id="reloadBtn" title="Recargar EPG dobleM">↻</button>
+    </div>
+
     <div id="controls">
         <select id="channelDropdown">
             <option value="">Seleccionar Canal</option>
@@ -338,15 +350,10 @@
         <input type="text" id="channelFilter" placeholder="Filtrar por Canal" />
         <input type="text" id="titleFilter" placeholder="Filtrar por Título" />
         <input type="text" id="descriptionFilter" placeholder="Filtrar por Descripción" />
-        <br /><br />
-
-        <button onclick="fetchXML()">Recargar EPG dobleM</button>
-        <button onclick="toggleDarkMode()" id="themeToggleBtn">🌙</button>
-
-        <br /><br />
+        <br />
         <label for="myfile">Usar otro xml:</label>
         <input accept=".xml" type="file" id="fileInput" />
-        <br /><br />
+        <br />
     </div>
 
     <div id="loader" style="display: none; text-align:center; margin-top:20px;">
