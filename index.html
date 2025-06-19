@@ -226,12 +226,19 @@
     align-items: center;
   }
 
-  .card-images img:last-child {
-    height: 100px; /* misma altura que icon principal */
+  .card-images img:first-child {
+    height: 90px;  /* igual altura que el icon principal */
+    max-width: 90px; /* no más ancho que la altura */
     width: auto;
+    object-fit: contain;
   }
-}
 
+  .card-images img:last-child {
+    height: 90px;  /* igual altura que el icon principal */
+    max-width: 90px; /* no más ancho que la altura */
+    width: auto;
+    object-fit: contain;
+  }
 
     input[type="text"], select, button {
       width: 90%;
