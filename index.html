@@ -521,15 +521,23 @@
       document.getElementById('themeToggleBtn').textContent = isLight ? '☀️' : '🌙';
     }
 
-    ['channelFilter', 'titleFilter', 'descriptionFilter', 'channelDropdown'].forEach(id => {
-      document.getElementById(id).addEventListener('input', () => {
-        if(id === 'channelDropdown') {
-          document.getElementById('channelFilter').value = document.getElementById(id).value;
-        }
-        currentPage = 0;
-        renderTable();
-      });
-    });
+// Listener para el dropdown del canal (mantener sincronización con canalFilter)
+document.getElementById('channelDropdown').addEventListener('input', () => {
+  document.getElementById('channelFilter').value = document.getElementById('channelDropdown').value;
+  currentPage = 0;
+  renderTable();
+});
+
+// Listeners para los filtros de texto
+['channelFilter', 'titleFilter', 'descriptionFilter'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    // Al filtrar por texto, limpiar el dropdown
+    document.getElementById('channelDropdown').value = '';
+    currentPage = 0;
+    renderTable();
+  });
+});
+
 
     fetchXML();
   </script>
