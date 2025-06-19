@@ -1,481 +1,507 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EPG dobleM - 3.0</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-<style>
-  body {
-    font-family: 'Inter', sans-serif;
-    color: #fff;
-    background: linear-gradient(180deg, #1e1e1e, #2b2b2b);
-    padding: 20px;
-    transition: background-color 0.3s, color 0.3s;
-  }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EPG dobleM - 3.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            background: linear-gradient(180deg, #1e1e1e, #2b2b2b);
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
 
-  h1 {
-    text-align: center;
-    font-size: 2rem;
-    color: #00e5ff;
-    margin-bottom: 20px;
-  }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            color: #00e5ff;
+            margin-bottom: 20px;
+        }
 
-  #controls {
-    margin-bottom: 25px;
-    text-align: center;
-    background: #2e2e2e;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
-  }
+        #controls {
+            margin-bottom: 25px;
+            text-align: center;
+            background: #2e2e2e;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+        }
 
-  input[type="text"],
-  select {
-    padding: 10px;
-    margin: 8px;
-    border-radius: 6px;
-    border: 1px solid #555;
-    background-color: #444;
-    color: white;
-    font-size: 0.95em;
-  }
+        input[type="text"],
+        select {
+            padding: 10px;
+            margin: 8px;
+            border-radius: 6px;
+            border: 1px solid #555;
+            background-color: #444;
+            color: white;
+            font-size: 0.95em;
+        }
 
-  input[type="text"]:focus,
-  select:focus {
-    outline: none;
-    border-color: #00e5ff;
-  }
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #00e5ff;
+        }
 
-  button {
-    font-size: 1em;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    background-color: #00e5ff;
-    color: #000;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
+        button {
+            font-size: 1em;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #00e5ff;
+            color: #000;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-  button:hover {
-    background-color: #00bcd4;
-  }
+        button:hover {
+            background-color: #00bcd4;
+        }
 
-  button:disabled {
-    background-color: #666;
-    cursor: not-allowed;
-  }
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
 
-  #result-count {
-    text-align: center;
-    margin: 15px 0;
-    font-size: 0.95em;
-    color: #aaa;
-  }
+        #result-count {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 0.95em;
+            color: #aaa;
+        }
 
-  label {
-    font-size: 0.95em;
-    color: #ddd;
-  }
+        label {
+            font-size: 0.95em;
+            color: #ddd;
+        }
 
-  .pagination-btn {
-    margin: 10px 5px;
-  }
+        .pagination-btn {
+            margin: 10px 5px;
+        }
 
-  #data-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
-  }
+        #data-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
 
-  .program-card {
-    background-color: #1a1a1a;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
-    display: flex;
-    flex-direction: column;
-    color: #fff;
-    transition: box-shadow 0.3s ease;
-  }
+        .program-card {
+            background-color: #1a1a1a;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            color: #fff;
+            transition: box-shadow 0.3s ease;
+        }
 
-  .program-card:hover {
-    box-shadow: 0 4px 16px rgba(0, 229, 255, 0.6);
-  }
+        .program-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 229, 255, 0.6);
+        }
 
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: nowrap;
-    margin-bottom: 12px;
-  }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap;
+            margin-bottom: 12px;
+        }
 
-  .card-info {
-    display: flex;
-    gap: 10px;
-    align-items: baseline;
-    color: #ccc;
-    font-size: 0.9em;
-    flex-wrap: wrap;
-  }
+        .card-info {
+            display: flex;
+            gap: 10px;
+            align-items: baseline;
+            color: #ccc;
+            font-size: 0.9em;
+            flex-wrap: wrap;
+        }
 
-  .card-date {
-      display: block;
-    font-weight: bold;
-    color: #00e5ff;
-        font-size: 1.0em;
-  }
+        .card-date {
+            display: block;
+            font-weight: bold;
+            color: #00e5ff;
+            font-size: 1.0em;
+        }
 
-  .card-time {
-      display: block;
-    color: #fff;
-    font-weight: bold;
-    font-size: 0.9em;
-  }
-  
-.card-time .duration {
-  font-size: 0.8em;
-  color: #ccc;
-  margin-left: 5px;
-}
+        .card-time {
+            display: block;
+            color: #fff;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
 
-.card-channel {
-  display: flex;
-  align-items: center;
-  gap: 1px; /* menos espacio */
-  min-width: 120px;
-  flex-direction: row;
-}
+        .card-time .duration {
+            font-size: 0.8em;
+            color: #ccc;
+            margin-left: 5px;
+        }
 
-.card-channel img {
-  height: 32px;
-  width: auto;
-  max-width: 60px; /* menos ancho máximo */
-  object-fit: contain;
-  border-radius: 1px;
-  margin: 0;
-  padding: 0;
-}
+        .card-channel {
+            display: flex;
+            align-items: center;
+            gap: 1px;
+            /* menos espacio */
+            min-width: 120px;
+            flex-direction: row;
+        }
 
-.channel-name {
-  font-size: 0.75em; /* más pequeño */
-  color: #ccc;
-}
+        .card-channel img {
+            height: 32px;
+            width: auto;
+            max-width: 60px;
+            /* menos ancho máximo */
+            object-fit: contain;
+            border-radius: 1px;
+            margin: 0;
+            padding: 0;
+        }
 
-  .card-body {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
+        .channel-name {
+            font-size: 0.75em;
+            /* más pequeño */
+            color: #ccc;
+        }
 
-  .card-images {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
+        .card-body {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
 
-  .card-images img {
-    width: 90px;
-    border-radius: 6px;
-    object-fit: contain;
-  }
+        .card-images {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
 
-  .card-text {
-    flex: 1;
-    min-width: 200px;
-  }
+        .card-images img {
+            width: 90px;
+            border-radius: 6px;
+            object-fit: contain;
+        }
 
-  .card-text .title {
-    font-weight: bold;
-    font-size: 1em;
-    margin-bottom: 5px;
-    color: #fff;
-  }
+        .card-text {
+            flex: 1;
+            min-width: 200px;
+        }
 
-  .card-text .description {
-    font-size: 0.85em;
-    font-style: italic;
-    color: #ccc;
-    white-space: pre-wrap;
-  }
-  
-  @media (max-width: 768px) {
-    .card-body {
-      flex-direction: column;
-      align-items: flex-start;
-    }
+        .card-text .title {
+            font-weight: bold;
+            font-size: 1em;
+            margin-bottom: 5px;
+            color: #fff;
+        }
 
-    .card-images {
-      flex-direction: row;
-      gap: 10px;
-    }
+        .card-text .description {
+            font-size: 0.85em;
+            font-style: italic;
+            color: #ccc;
+            white-space: pre-wrap;
+        }
 
-    .card-images img {
-      width: 70px;
-    }
+        /* Light mode overrides */
+        body.light-mode {
+            background: linear-gradient(180deg, #f4f4f4, #e6e6e6);
+            color: #000;
+        }
 
-    .card-text {
-      margin-top: 10px;
-    }
-    
-    @media (max-width: 768px) {
-  .card-channel {
-    flex-direction: column-reverse; /* En pantallas pequeñas, vertical */
-    align-items: center;
-  }
+        body.light-mode .program-card {
+            background-color: #fff;
+            color: #000;
+        }
 
-  .card-images img:first-child {
-    height: 90px;  /* igual altura que el icon principal */
-    max-width: 90px; /* no más ancho que la altura */
-    width: auto;
-    object-fit: contain;
-  }
+        body.light-mode .card-date,
+        body.light-mode .card-time,
+        body.light-mode .card-text .title {
+            color: #000;
+        }
 
-  .card-images img:last-child {
-    height: 90px;  /* igual altura que el icon principal */
-    max-width: 90px; /* no más ancho que la altura */
-    width: auto;
-    object-fit: contain;
-  }
+        body.light-mode .card-text .description {
+            color: #333;
+        }
 
-    input[type="text"], select, button {
-      width: 90%;
-      margin: 5px auto;
-      display: block;
-    }
+        body.light-mode #controls {
+            background-color: #ddd;
+        }
 
-    #controls {
-      padding: 10px;
-    }
+        body.light-mode button {
+            background-color: #00bcd4;
+            color: #000;
+        }
 
-    .card-info {
-      flex-direction: column;
-      align-items: flex-start;
-    }
+        @media (max-width: 768px) {
+            .card-body {
+                flex-direction: column;
+                align-items: flex-start;
+            }
 
-    .card-time {
-      margin-top: 4px;
-    }
-  }
+            .card-images {
+                flex-direction: row;
+                gap: 10px;
+            }
 
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+            .card-images img {
+                width: 70px;
+            }
 
-  /* Light mode overrides */
-  body.light-mode {
-    background: linear-gradient(180deg, #f4f4f4, #e6e6e6);
-    color: #000;
-  }
+            .card-text {
+                margin-top: 10px;
+            }
 
-  body.light-mode .program-card {
-    background-color: #fff;
-    color: #000;
-  }
+            @media (max-width: 768px) {
+                .card-channel {
+                    flex-direction: column-reverse;
+                    /* En pantallas pequeñas, vertical */
+                    align-items: center;
+                }
 
-  body.light-mode .card-date,
-  body.light-mode .card-time,
-  body.light-mode .card-text .title {
-    color: #000;
-  }
+                .card-images img:first-child {
+                    height: 90px;
+                    /* igual altura que el icon principal */
+                    max-width: 90px;
+                    /* no más ancho que la altura */
+                    width: auto;
+                    object-fit: contain;
+                }
 
-  body.light-mode .card-text .description {
-    color: #333;
-  }
+                .card-images img:last-child {
+                    height: 90px;
+                    /* igual altura que el icon principal */
+                    max-width: 90px;
+                    /* no más ancho que la altura */
+                    width: auto;
+                    object-fit: contain;
+                }
 
-  body.light-mode #controls {
-    background-color: #ddd;
-  }
+                input[type="text"],
+                select,
+                button {
+                    width: 90%;
+                    margin: 5px auto;
+                    display: block;
+                }
 
-  body.light-mode button {
-    background-color: #00bcd4;
-    color: #000;
-  }
-</style>
+                #controls {
+                    padding: 10px;
+                }
 
+                .card-info {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
 
+                .card-time {
+                    margin-top: 4px;
+                }
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+    </style>
 
 </head>
+
 <body>
-  <h1>EPG dobleM       </h1>
+    <h1>EPG dobleM </h1>
 
-  <div id="controls">
-    <select id="channelDropdown">
-      <option value="">Seleccionar Canal</option>
-    </select>
-    <input type="text" id="channelFilter" placeholder="Filtrar por Canal" />
-    <input type="text" id="titleFilter" placeholder="Filtrar por Título" />
-    <input type="text" id="descriptionFilter" placeholder="Filtrar por Descripción" />
-    <br /><br />
+    <div id="controls">
+        <select id="channelDropdown">
+            <option value="">Seleccionar Canal</option>
+        </select>
+        <input type="text" id="channelFilter" placeholder="Filtrar por Canal" />
+        <input type="text" id="titleFilter" placeholder="Filtrar por Título" />
+        <input type="text" id="descriptionFilter" placeholder="Filtrar por Descripción" />
+        <br /><br />
 
-      <button onclick="fetchXML()">Recargar EPG dobleM</button>
-      <button onclick="toggleDarkMode()" id="themeToggleBtn">🌙</button>
+        <button onclick="fetchXML()">Recargar EPG dobleM</button>
+        <button onclick="toggleDarkMode()" id="themeToggleBtn">🌙</button>
 
-    <br /><br />
-    <label for="myfile">Usar otro xml:</label>
-    <input accept=".xml" type="file" id="fileInput" />
-    <br /><br />
-  </div>
+        <br /><br />
+        <label for="myfile">Usar otro xml:</label>
+        <input accept=".xml" type="file" id="fileInput" />
+        <br /><br />
+    </div>
 
-  <div id="loader" style="display: none; text-align:center; margin-top:20px;">
-    <span style="display:inline-block; border:4px solid #00e5ff; border-top:4px solid transparent; border-radius:50%; width:40px; height:40px; animation: spin 1s linear infinite;"></span>
-    <p style="color:#ccc;">Cargando EPG...</p>
-  </div>
+    <div id="loader" style="display: none; text-align:center; margin-top:20px;">
+        <span style="display:inline-block; border:4px solid #00e5ff; border-top:4px solid transparent; border-radius:50%; width:40px; height:40px; animation: spin 1s linear infinite;"></span>
+        <p style="color:#ccc;">Cargando EPG...</p>
+    </div>
 
-  <div id="data-list"></div>
-  <div id="result-count"></div>
+    <div id="data-list"></div>
+    <div id="result-count"></div>
 
-  <div style="text-align: center;">
-    <button class="pagination-btn" onclick="prevPage()" disabled>Anterior</button>
-    <button class="pagination-btn" onclick="nextPage()" disabled>Siguiente</button>
-  </div>
+    <div style="text-align: center;">
+        <button class="pagination-btn" onclick="prevPage()" disabled>Anterior</button>
+        <button class="pagination-btn" onclick="nextPage()" disabled>Siguiente</button>
+    </div>
 
-  <script>
-    let epgData = [];
-    let currentPage = 0;
-    let channelsList = [];
+    <script>
+        let epgData = [];
+        let currentPage = 0;
+        let channelsList = [];
 
-    async function fetchXML() {
-      const loader = document.getElementById('loader');
-      loader.style.display = 'block';
-      try {
-        const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/EPG_dobleM.xml';
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("No se pudo cargar el archivo EPG.");
-        const xmlText = await response.text();
-        parseXML(xmlText);
-      } catch (err) {
-        alert("Error al cargar el EPG: " + err.message);
-      } finally {
-        loader.style.display = 'none';
-      }
-    }
+        async function fetchXML() {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'block';
+            try {
+                const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/EPG_dobleM.xml';
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("No se pudo cargar el archivo EPG.");
+                const xmlText = await response.text();
+                parseXML(xmlText);
+            } catch (err) {
+                alert("Error al cargar el EPG: " + err.message);
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
 
-    document.getElementById('fileInput').addEventListener('change', (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            parseXML(e.target.result);
-          } catch (err) {
-            alert("Error al analizar el archivo XML: " + err.message);
-          }
-        };
-        reader.readAsText(file);
-      }
-    });
+        document.getElementById('fileInput').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        parseXML(e.target.result);
+                    } catch (err) {
+                        alert("Error al analizar el archivo XML: " + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
 
-    function calculateDuration(start, stop) {
-      if (!start || !stop) return '';
-      const parseTime = (t) => new Date(`${t.substring(0, 4)}-${t.substring(4, 6)}-${t.substring(6, 8)}T${t.substring(8, 10)}:${t.substring(10, 12)}:00`);
-      const startTime = parseTime(start);
-      const stopTime = parseTime(stop);
-      const diffMinutes = Math.round((stopTime - startTime) / 60000);
-      return isNaN(diffMinutes) || diffMinutes <= 0 ? '' : formatDuration(diffMinutes);
-    }
+        function calculateDuration(start, stop) {
+            if (!start || !stop) return '';
+            const parseTime = (t) => new Date(`${t.substring(0, 4)}-${t.substring(4, 6)}-${t.substring(6, 8)}T${t.substring(8, 10)}:${t.substring(10, 12)}:00`);
+            const startTime = parseTime(start);
+            const stopTime = parseTime(stop);
+            const diffMinutes = Math.round((stopTime - startTime) / 60000);
+            return isNaN(diffMinutes) || diffMinutes <= 0 ? '' : formatDuration(diffMinutes);
+        }
 
-    function formatDuration(minutes) {
-      const h = Math.floor(minutes / 60);
-      const m = minutes % 60;
-      return `${h > 0 ? `${h} h ` : ''}${m} min`;
-    }
+        function formatDuration(minutes) {
+            const h = Math.floor(minutes / 60);
+            const m = minutes % 60;
+            return `${h > 0 ? `${h} h ` : ''}${m} min`;
+        }
 
-    function parseXML(xmlText) {
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
-      const programmes = xmlDoc.getElementsByTagName('programme');
-      epgData = [];
+        function parseXML(xmlText) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
+            const programmes = xmlDoc.getElementsByTagName('programme');
+            epgData = [];
 
-      const channels = {};
-      const channelElements = xmlDoc.getElementsByTagName('channel');
-      channelsList = [];
+            const channels = {};
+            const channelElements = xmlDoc.getElementsByTagName('channel');
+            channelsList = [];
 
-      for (let i = 0; i < channelElements.length; i++) {
-        const channel = channelElements[i];
-        const channelId = channel.getAttribute('id');
-        const iconSrc = channel.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
-        channels[channelId] = iconSrc;
-        channelsList.push(channelId);
-      }
+            for (let i = 0; i < channelElements.length; i++) {
+                const channel = channelElements[i];
+                const channelId = channel.getAttribute('id');
+                const iconSrc = channel.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
+                channels[channelId] = iconSrc;
+                channelsList.push(channelId);
+            }
 
-      channelsList = [...new Set(channelsList)].sort();
-      populateChannelDropdown();
+            channelsList = [...new Set(channelsList)].sort();
+            populateChannelDropdown();
 
-      for (let i = 0; i < programmes.length; i++) {
-        const prog = programmes[i];
-        const channel = prog.getAttribute('channel') || '';
-        const date = formatXMLTVDate(prog.getAttribute('start'));
-        const start = formatXMLTVTime(prog.getAttribute('start'));
-        const stop = formatXMLTVTime(prog.getAttribute('stop'));
-        const duration = calculateDuration(prog.getAttribute('start'), prog.getAttribute('stop'));
-        const title = prog.getElementsByTagName('title')[0]?.textContent || '';
-        const description = prog.getElementsByTagName('desc')[0]?.textContent || '';
-        const iconSrc = prog.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
-        const iconSrc2 = prog.getElementsByTagName('icon2')[0]?.getAttribute('src') || '';
-        const channelIcon = channels[channel] || '';
+            for (let i = 0; i < programmes.length; i++) {
+                const prog = programmes[i];
+                const channel = prog.getAttribute('channel') || '';
+                const date = formatXMLTVDate(prog.getAttribute('start'));
+                const start = formatXMLTVTime(prog.getAttribute('start'));
+                const stop = formatXMLTVTime(prog.getAttribute('stop'));
+                const duration = calculateDuration(prog.getAttribute('start'), prog.getAttribute('stop'));
+                const title = prog.getElementsByTagName('title')[0]?.textContent || '';
+                const description = prog.getElementsByTagName('desc')[0]?.textContent || '';
+                const iconSrc = prog.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
+                const iconSrc2 = prog.getElementsByTagName('icon2')[0]?.getAttribute('src') || '';
+                const channelIcon = channels[channel] || '';
 
-        epgData.push({ channel, channelIcon, date, start, stop, duration, iconSrc, iconSrc2, title, description });
-      }
+                epgData.push({
+                    channel,
+                    channelIcon,
+                    date,
+                    start,
+                    stop,
+                    duration,
+                    iconSrc,
+                    iconSrc2,
+                    title,
+                    description
+                });
+            }
 
-      currentPage = 0;
-      renderTable();
-    }
+            currentPage = 0;
+            renderTable();
+        }
 
-    function formatXMLTVDate(time) {
-      if (!time) return '';
-      const year = time.substring(0, 4);
-      const month = time.substring(4, 6);
-      const day = time.substring(6, 8);
-      return `${day}/${month}/${year}`;
-    }
+        function formatXMLTVDate(time) {
+            if (!time) return '';
+            const year = time.substring(0, 4);
+            const month = time.substring(4, 6);
+            const day = time.substring(6, 8);
+            return `${day}/${month}/${year}`;
+        }
 
-    function formatXMLTVTime(time) {
-      if (!time) return '';
-      const hour = time.substring(8, 10);
-      const minute = time.substring(10, 12);
-      return `${hour}:${minute}`;
-    }
+        function formatXMLTVTime(time) {
+            if (!time) return '';
+            const hour = time.substring(8, 10);
+            const minute = time.substring(10, 12);
+            return `${hour}:${minute}`;
+        }
 
-    function populateChannelDropdown() {
-      const dropdown = document.getElementById('channelDropdown');
-      dropdown.innerHTML = '<option value="">Seleccionar Canal</option>';
-      channelsList.forEach(channelId => {
-        const option = document.createElement('option');
-        option.value = channelId;
-        option.textContent = channelId;
-        dropdown.appendChild(option);
-      });
-    }
+        function populateChannelDropdown() {
+            const dropdown = document.getElementById('channelDropdown');
+            dropdown.innerHTML = '<option value="">Seleccionar Canal</option>';
+            channelsList.forEach(channelId => {
+                const option = document.createElement('option');
+                option.value = channelId;
+                option.textContent = channelId;
+                dropdown.appendChild(option);
+            });
+        }
 
-    function renderTable() {
-      const filters = {
-        channel: document.getElementById('channelFilter').value.toLowerCase(),
-        title: document.getElementById('titleFilter').value.toLowerCase(),
-        description: document.getElementById('descriptionFilter').value.toLowerCase(),
-      };
+        function renderTable() {
+            const filters = {
+                channel: document.getElementById('channelFilter').value.toLowerCase(),
+                title: document.getElementById('titleFilter').value.toLowerCase(),
+                description: document.getElementById('descriptionFilter').value.toLowerCase(),
+            };
 
-      const filteredData = epgData.filter(item =>
-        (!filters.channel || item.channel.toLowerCase().includes(filters.channel)) &&
-        (!filters.title || item.title.toLowerCase().includes(filters.title)) &&
-        (!filters.description || item.description.toLowerCase().includes(filters.description))
-      );
+            const filteredData = epgData.filter(item =>
+                (!filters.channel || item.channel.toLowerCase().includes(filters.channel)) &&
+                (!filters.title || item.title.toLowerCase().includes(filters.title)) &&
+                (!filters.description || item.description.toLowerCase().includes(filters.description))
+            );
 
-      const startIndex = currentPage * 100;
-      const paginatedData = filteredData.slice(startIndex, startIndex + 100);
+            const startIndex = currentPage * 100;
+            const paginatedData = filteredData.slice(startIndex, startIndex + 100);
 
-      const dataList = document.getElementById('data-list');
-      dataList.innerHTML = '';
+            const dataList = document.getElementById('data-list');
+            dataList.innerHTML = '';
 
-      paginatedData.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'program-card';
+            paginatedData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'program-card';
 
-        card.innerHTML = `
+                card.innerHTML = `
           <div class="card-header">
             <div class="card-info">
               <div class="card-date">${item.date}</div>
@@ -502,52 +528,53 @@
           </div>
         `;
 
-        dataList.appendChild(card);
-      });
+                dataList.appendChild(card);
+            });
 
-      document.getElementById('result-count').textContent = `Mostrando ${paginatedData.length} de ${filteredData.length} programas`;
+            document.getElementById('result-count').textContent = `Mostrando ${paginatedData.length} de ${filteredData.length} programas`;
 
-      document.querySelector('button[onclick="prevPage()"]').disabled = currentPage === 0;
-      document.querySelector('button[onclick="nextPage()"]').disabled = startIndex + 100 >= filteredData.length;
-    }
+            document.querySelector('button[onclick="prevPage()"]').disabled = currentPage === 0;
+            document.querySelector('button[onclick="nextPage()"]').disabled = startIndex + 100 >= filteredData.length;
+        }
 
-    function prevPage() {
-      if (currentPage > 0) {
-        currentPage--;
-        renderTable();
-      }
-    }
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                renderTable();
+            }
+        }
 
-    function nextPage() {
-      currentPage++;
-      renderTable();
-    }
+        function nextPage() {
+            currentPage++;
+            renderTable();
+        }
 
-    function toggleDarkMode() {
-      document.body.classList.toggle('light-mode');
-      const isLight = document.body.classList.contains('light-mode');
-      document.getElementById('themeToggleBtn').textContent = isLight ? '☀️' : '🌙';
-    }
+        function toggleDarkMode() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            document.getElementById('themeToggleBtn').textContent = isLight ? '☀️' : '🌙';
+        }
 
-// Listener para el dropdown del canal (mantener sincronización con canalFilter)
-document.getElementById('channelDropdown').addEventListener('input', () => {
-  document.getElementById('channelFilter').value = document.getElementById('channelDropdown').value;
-  currentPage = 0;
-  renderTable();
-});
+        // Listener para el dropdown del canal (mantener sincronización con canalFilter)
+        document.getElementById('channelDropdown').addEventListener('input', () => {
+            document.getElementById('channelFilter').value = document.getElementById('channelDropdown').value;
+            currentPage = 0;
+            renderTable();
+        });
 
-// Listeners para los filtros de texto
-['channelFilter', 'titleFilter', 'descriptionFilter'].forEach(id => {
-  document.getElementById(id).addEventListener('input', () => {
-    // Al filtrar por texto, limpiar el dropdown
-    document.getElementById('channelDropdown').value = '';
-    currentPage = 0;
-    renderTable();
-  });
-});
+        // Listeners para los filtros de texto
+        ['channelFilter', 'titleFilter', 'descriptionFilter'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                // Al filtrar por texto, limpiar el dropdown
+                document.getElementById('channelDropdown').value = '';
+                currentPage = 0;
+                renderTable();
+            });
+        });
 
 
-    fetchXML();
-  </script>
+        fetchXML();
+    </script>
 </body>
+
 </html>
