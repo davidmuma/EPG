@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>EPG dobleM - 3.5</title>
+    <title>EPG dobleM - 4.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
     <style>
         :root {
@@ -222,13 +222,14 @@
             color: var(--color-text-muted-dark);
             white-space: pre-wrap;
         }
-        
+
         #top-buttons {
-    display: inline-flex;
-    gap: 15px;
-    justify-content: center;
-    flex-wrap: nowrap; /* que no se envuelvan */
-}
+            display: inline-flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: nowrap;
+            /* que no se envuelvan */
+        }
 
         /* Loader spinner styles moved to CSS */
         #loader-spinner {
@@ -336,14 +337,14 @@
 </head>
 
 <body>
-    <h1>EPG dobleM </h1>
+    <h1>EPG dobleM</h1>
 
-<div id="top-buttons" style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: nowrap;">
+    <div id="top-buttons" style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: nowrap;">
         <button onclick="toggleDarkMode()" id="themeToggleBtn" title="Cambiar tema">🌙</button>
-    <button onclick="fetchXML()" id="reloadBtn" title="Recargar EPG">↻</button>
-    <button id="uploadXmlBtn" title="Usar otro XML">📂</button>
-    <input accept=".xml" type="file" id="fileInput" style="display:none;" />
-</div>
+        <button onclick="fetchXML()" id="reloadBtn" title="Recargar EPG">↻</button>
+        <button id="uploadXmlBtn" title="Usar otro XML">📂</button>
+        <input accept=".xml" type="file" id="fileInput" style="display:none;" />
+    </div>
 
     <div id="controls">
         <select id="channelDropdown">
@@ -352,7 +353,6 @@
         <input type="text" id="channelFilter" placeholder="Filtrar por Canal" />
         <input type="text" id="titleFilter" placeholder="Filtrar por Título" />
         <input type="text" id="descriptionFilter" placeholder="Filtrar por Descripción" />
-        <br />
     </div>
 
     <div id="loader" style="display: none; text-align:center; margin-top:20px;">
@@ -363,20 +363,17 @@
     <div id="data-list"></div>
     <div id="result-count"></div>
 
-    <div style="text-align: center;">
-        <button class="pagination-btn" onclick="prevPage()" disabled>Anterior</button>
-        <button class="pagination-btn" onclick="nextPage()" disabled>Siguiente</button>
-    </div>
-
     <script>
         let epgData = [];
-        let currentPage = 0;
         let channelsList = [];
+        let filteredData = [];
+        let pageSize = 30;
+        let renderedItems = 0;
 
         async function fetchXML() {
             const loader = document.getElementById('loader');
             const reloadBtn = document.querySelector('button[onclick="fetchXML()"]');
-            reloadBtn.disabled = true; // Desactivar botón al empezar
+            reloadBtn.disabled = true;
             loader.style.display = 'block';
 
             try {
@@ -389,7 +386,7 @@
                 alert("Error al cargar el EPG: " + err.message);
             } finally {
                 loader.style.display = 'none';
-                reloadBtn.disabled = false; // Habilitar botón al terminar
+                reloadBtn.disabled = false;
             }
         }
 
@@ -414,13 +411,7 @@
             const startTime = parseTime(start);
             const stopTime = parseTime(stop);
             const diffMinutes = Math.round((stopTime - startTime) / 60000);
-            return isNaN(diffMinutes) || diffMinutes <= 0 ? '' : formatDuration(diffMinutes);
-        }
-
-        function formatDuration(minutes) {
-            const h = Math.floor(minutes / 60);
-            const m = minutes % 60;
-            return `${h > 0 ? `${h} h ` : ''}${m} min`;
+            return isNaN(diffMinutes) || diffMinutes <= 0 ? '' : `${Math.floor(diffMinutes / 60)} h ${diffMinutes % 60} min`;
         }
 
         function parseXML(xmlText) {
@@ -471,8 +462,7 @@
                 });
             }
 
-            currentPage = 0;
-            renderTable();
+            renderTable(true);
         }
 
         function formatXMLTVDate(time) {
@@ -501,38 +491,42 @@
             });
         }
 
-        function renderTable() {
-            const filters = {
-                channel: document.getElementById('channelFilter').value.toLowerCase(),
-                title: document.getElementById('titleFilter').value.toLowerCase(),
-                description: document.getElementById('descriptionFilter').value.toLowerCase(),
-            };
+        function renderTable(initial = false) {
+            if (initial) {
+                const filters = {
+                    channel: document.getElementById('channelFilter').value.toLowerCase(),
+                    title: document.getElementById('titleFilter').value.toLowerCase(),
+                    description: document.getElementById('descriptionFilter').value.toLowerCase(),
+                };
 
-            const filteredData = epgData.filter(item =>
-                (!filters.channel || item.channel.toLowerCase().includes(filters.channel)) &&
-                (!filters.title || item.title.toLowerCase().includes(filters.title)) &&
-                (!filters.description || item.description.toLowerCase().includes(filters.description))
-            );
+                filteredData = epgData.filter(item =>
+                    (!filters.channel || item.channel.toLowerCase().includes(filters.channel)) &&
+                    (!filters.title || item.title.toLowerCase().includes(filters.title)) &&
+                    (!filters.description || item.description.toLowerCase().includes(filters.description))
+                );
 
-            const startIndex = currentPage * 100;
-            const paginatedData = filteredData.slice(startIndex, startIndex + 100);
+                renderedItems = 0;
+                document.getElementById('data-list').innerHTML = '';
+            }
 
+            const chunk = filteredData.slice(renderedItems, renderedItems + pageSize);
+            renderChunk(chunk);
+            renderedItems += chunk.length;
+
+            document.getElementById('result-count').textContent =
+                `Mostrando ${renderedItems} de ${filteredData.length} programas`;
+        }
+
+        function renderChunk(data) {
             const dataList = document.getElementById('data-list');
-            dataList.innerHTML = '';
-
-            paginatedData.forEach(item => {
+            data.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'program-card';
-
                 card.innerHTML = `
           <div class="card-header">
             <div class="card-info">
               <div class="card-date">${item.date}</div>
-<div class="card-time">
-  ${item.start} - ${item.stop}
-  ${item.duration ? `<span class="duration">(${item.duration})</span>` : ''}
-</div>
-
+              <div class="card-time">${item.start} - ${item.stop} ${item.duration ? `<span class="duration">(${item.duration})</span>` : ''}</div>
             </div>
             <div class="card-channel">
               ${item.channelIcon ? `<img src="${item.channelIcon}" alt="${item.channel}">` : ''}
@@ -550,26 +544,8 @@
             </div>
           </div>
         `;
-
                 dataList.appendChild(card);
             });
-
-            document.getElementById('result-count').textContent = `Mostrando ${paginatedData.length} de ${filteredData.length} programas`;
-
-            document.querySelector('button[onclick="prevPage()"]').disabled = currentPage === 0;
-            document.querySelector('button[onclick="nextPage()"]').disabled = startIndex + 100 >= filteredData.length;
-        }
-
-        function prevPage() {
-            if (currentPage > 0) {
-                currentPage--;
-                renderTable();
-            }
-        }
-
-        function nextPage() {
-            currentPage++;
-            renderTable();
         }
 
         function toggleDarkMode() {
@@ -578,29 +554,33 @@
             document.getElementById('themeToggleBtn').textContent = isLight ? '☀️' : '🌙';
         }
 
-        // Listener para el dropdown del canal (mantener sincronización con canalFilter)
+        document.getElementById('uploadXmlBtn').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+
+        // Filtros
         document.getElementById('channelDropdown').addEventListener('input', () => {
             document.getElementById('channelFilter').value = document.getElementById('channelDropdown').value;
-            currentPage = 0;
-            renderTable();
+            renderTable(true);
         });
 
-        // Listeners para los filtros de texto
         ['channelFilter', 'titleFilter', 'descriptionFilter'].forEach(id => {
             document.getElementById(id).addEventListener('input', () => {
-                // Al filtrar por texto, limpiar el dropdown
                 document.getElementById('channelDropdown').value = '';
-                currentPage = 0;
-                renderTable();
+                renderTable(true);
             });
         });
-document.getElementById('uploadXmlBtn').addEventListener('click', () => {
-    document.getElementById('fileInput').click();
-});
 
+        // Scroll infinito
+        window.addEventListener('scroll', () => {
+            if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 200)) {
+                renderTable(false);
+            }
+        });
 
         fetchXML();
     </script>
 </body>
+
 
 </html>
