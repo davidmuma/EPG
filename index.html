@@ -376,26 +376,16 @@
             reloadBtn.disabled = true;
             loader.style.display = 'block';
 
-            // Restaurar contenido original del loader
-            loader.innerHTML = `
-        <span id="loader-spinner"></span>
-        <p style="color:#ccc;">Cargando EPG...</p>
-    `;
-
             try {
                 const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/EPG_dobleM.xml';
                 const response = await fetch(url);
-                if (!response.ok) throw new Error("No se pudo cargar el archivo EPG dobleM.");
+                if (!response.ok) throw new Error("No se pudo cargar el archivo EPG.");
                 const xmlText = await response.text();
                 parseXML(xmlText);
             } catch (err) {
-                loader.innerHTML = `
-            <div style="color: red; font-weight: bold; font-size: 1em;">
-                ❌ Error al cargar el EPG: ${err.message}
-            </div>
-            <p style="color:#ccc; margin-top: 10px;">Verifica tu conexión o intenta cargar un archivo manualmente.</p>
-        `;
+                alert("Error al cargar el EPG: " + err.message);
             } finally {
+                loader.style.display = 'none';
                 reloadBtn.disabled = false;
             }
         }
