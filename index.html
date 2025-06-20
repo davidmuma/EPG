@@ -417,6 +417,11 @@
         function parseXML(xmlText) {
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
+            // Validar errores de parseo del XML
+            const parserError = xmlDoc.querySelector('parsererror');
+            if (parserError) {
+                throw new Error("El archivo XML contiene errores de formato.");
+            }
             const programmes = xmlDoc.getElementsByTagName('programme');
             epgData = [];
 
@@ -564,12 +569,23 @@
             renderTable(true);
         });
 
+        // Evitar renderizados excesivos con debounce
+        function debounce(func, delay = 300) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
+        // Aplica debounce a los filtros de texto
         ['channelFilter', 'titleFilter', 'descriptionFilter'].forEach(id => {
-            document.getElementById(id).addEventListener('input', () => {
+            document.getElementById(id).addEventListener('input', debounce(() => {
                 document.getElementById('channelDropdown').value = '';
                 renderTable(true);
-            });
+            }));
         });
+
 
         // Scroll infinito
         window.addEventListener('scroll', () => {
