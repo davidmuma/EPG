@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>EPG dobleM - 4.0</title>
+    <title>EPG dobleM - 5.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
     <style>
         :root {
@@ -41,14 +41,57 @@
             margin-bottom: 20px;
         }
 
+        #dateFilter {
+            width: auto;
+            min-width: 90px;
+            max-width: 120px;
+            padding: 6px 8px;
+            font-size: 1.05em;
+            /* tamaño igual para ambos */
+            box-sizing: border-box;
+        }
+
+        #hourFilter {
+            width: auto;
+            min-width: 90px;
+            max-width: 120px;
+            padding: 6px 8px;
+            font-size: 0.85em;
+            /* tamaño igual para ambos */
+            box-sizing: border-box;
+        }
+
+        #resetFiltersBtn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            padding: 0;
+            font-size: 1.2em;
+            line-height: 36px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background-color: var(--color-primary);
+            color: #000;
+            transition: background-color 0.3s;
+            margin-left: 6px;
+        }
+
+        #resetFiltersBtn:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+
         #controls {
             margin-bottom: 25px;
             text-align: center;
-            background: var(--color-bg-controls-dark);
             padding: 15px;
             border-radius: 10px;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+            /* background: var(--color-bg-controls-dark); */
+            /* box-shadow: 0 0 8px rgba(0, 0, 0, 0.3); */
         }
+
+
 
         input[type="text"],
         select {
@@ -231,6 +274,34 @@
             /* que no se envuelvan */
         }
 
+        input[type="text"],
+        select,
+        input[type="date"],
+        input[type="number"] {
+            padding: 10px;
+            margin: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--color-border-input-dark);
+            background-color: var(--color-bg-input-dark);
+            color: var(--color-text-dark);
+            font-size: 0.95em;
+            cursor: text;
+        }
+
+        #date-hour-filters {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        #date-hour-filters input,
+        #date-hour-filters select {
+            flex: 1;
+            min-width: 150px;
+        }
+
+
         /* Loader spinner styles moved to CSS */
         #loader-spinner {
             display: inline-block;
@@ -263,10 +334,6 @@
             color: var(--color-text-muted-light);
         }
 
-        body.light-mode #controls {
-            background-color: var(--color-bg-controls-light);
-        }
-
         body.light-mode button {
             background-color: var(--color-primary-hover);
             color: var(--color-text-light);
@@ -286,19 +353,16 @@
 
             .card-images img {
                 width: 70px;
+                height: 90px;
+                max-width: 90px;
+                width: auto;
+                border-radius: 6px;
+                object-fit: contain;
             }
 
             .card-channel {
                 flex-direction: column-reverse;
                 align-items: center;
-            }
-
-            .card-images img:first-child,
-            .card-images img:last-child {
-                height: 90px;
-                max-width: 90px;
-                width: auto;
-                object-fit: contain;
             }
 
             input[type="text"],
@@ -341,7 +405,7 @@
 
     <div id="top-buttons" style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: nowrap;">
         <button onclick="toggleDarkMode()" id="themeToggleBtn" title="Cambiar tema">🌙</button>
-        <button onclick="fetchXML()" id="reloadBtn" title="Recargar EPG">↻</button>
+        <button onclick="fetchXML()" id="reloadBtn" title="Recargar EPG">🔃</button>
         <button id="uploadXmlBtn" title="Usar otro XML">📂</button>
         <input accept=".xml" type="file" id="fileInput" style="display:none;" />
     </div>
@@ -353,6 +417,39 @@
         <input type="text" id="channelFilter" placeholder="Filtrar por Canal" />
         <input type="text" id="titleFilter" placeholder="Filtrar por Título" />
         <input type="text" id="descriptionFilter" placeholder="Filtrar por Descripción" />
+        <!-- Grupo fecha + hora -->
+        <div id="dateHourGroup" style="display: inline-flex; gap: 8px; align-items: center;">
+            <input type="date" id="dateFilter" />
+            <select id="hourFilter">
+                <option value="">Hora</option>
+                <option value="0">00:00</option>
+                <option value="1">01:00</option>
+                <option value="2">02:00</option>
+                <option value="3">03:00</option>
+                <option value="4">04:00</option>
+                <option value="5">05:00</option>
+                <option value="6">06:00</option>
+                <option value="7">07:00</option>
+                <option value="8">08:00</option>
+                <option value="9">09:00</option>
+                <option value="10">10:00</option>
+                <option value="11">11:00</option>
+                <option value="12">12:00</option>
+                <option value="13">13:00</option>
+                <option value="14">14:00</option>
+                <option value="15">15:00</option>
+                <option value="16">16:00</option>
+                <option value="17">17:00</option>
+                <option value="18">18:00</option>
+                <option value="19">19:00</option>
+                <option value="20">20:00</option>
+                <option value="21">21:00</option>
+                <option value="22">22:00</option>
+                <option value="23">23:00</option>
+            </select>
+            <button id="resetFiltersBtn" title="Resetear filtros">✖️️</button>
+        </div>
+
     </div>
 
     <div id="loader" style="display: none; text-align:center; margin-top:20px;">
@@ -502,13 +599,56 @@
                     channel: document.getElementById('channelFilter').value.toLowerCase(),
                     title: document.getElementById('titleFilter').value.toLowerCase(),
                     description: document.getElementById('descriptionFilter').value.toLowerCase(),
+                    date: document.getElementById('dateFilter').value, // formato yyyy-mm-dd
+                    hour: document.getElementById('hourFilter').value // string numérico o vacío
                 };
 
-                filteredData = epgData.filter(item =>
-                    (!filters.channel || item.channel.toLowerCase().includes(filters.channel)) &&
-                    (!filters.title || item.title.toLowerCase().includes(filters.title)) &&
-                    (!filters.description || item.description.toLowerCase().includes(filters.description))
-                );
+                filteredData = epgData.filter(item => {
+                    // Filtro por canal, título, descripción (igual que antes)
+                    if (filters.channel && !item.channel.toLowerCase().includes(filters.channel)) return false;
+                    if (filters.title && !item.title.toLowerCase().includes(filters.title)) return false;
+                    if (filters.description && !item.description.toLowerCase().includes(filters.description)) return false;
+
+                    // Filtro por fecha
+                    if (filters.date) {
+                        // Convertir item.date dd/mm/yyyy a yyyy-mm-dd para comparar
+                        const parts = item.date.split('/');
+                        const itemDateFormatted = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
+                        if (itemDateFormatted !== filters.date) return false;
+                    }
+
+                    // Filtro por hora
+                    if (filters.hour !== '') {
+                        // Hora filtro como número
+                        const filterHour = parseInt(filters.hour, 10);
+                        if (isNaN(filterHour) || filterHour < 0 || filterHour > 23) return false;
+
+                        // Obtener hora inicio programa (item.start) como número
+                        const itemHour = parseInt(item.start.split(':')[0], 10);
+                        if (isNaN(itemHour)) return false;
+
+                        // Queremos incluir:
+                        //  - programas que empiezan a la hora o después (itemHour >= filterHour)
+                        //  - y el programa anterior inmediato (único programa que empezó antes pero aún podría estar en emisión)
+
+                        // Primero, aceptamos los que empiezan a la hora o después:
+                        if (itemHour >= filterHour) return true;
+
+                        // Para aceptar el anterior, necesitamos comprobar que:
+                        //  - el programa empezó antes de la hora filtrada
+                        //  - y que su hora de fin (item.stop) sea igual o posterior a la hora filtrada (considerando solo horas)
+
+                        const itemStopHour = parseInt(item.stop.split(':')[0], 10);
+                        if (!isNaN(itemStopHour)) {
+                            if (itemHour < filterHour && itemStopHour >= filterHour) {
+                                return true; // este es el programa anterior inmediato aún en emisión
+                            }
+                        }
+                        return false;
+                    }
+
+                    return true; // si no hay filtro por hora, pasa
+                });
 
                 renderedItems = 0;
                 document.getElementById('data-list').innerHTML = '';
@@ -521,6 +661,7 @@
             document.getElementById('result-count').textContent =
                 `Mostrando ${filteredData.length} programas`;
         }
+
 
         function renderChunk(data) {
             const dataList = document.getElementById('data-list');
@@ -569,6 +710,27 @@
             renderTable(true);
         });
 
+        document.getElementById('dateFilter').addEventListener('input', () => {
+            renderTable(true);
+        });
+
+        document.getElementById('hourFilter').addEventListener('input', () => {
+            renderTable(true);
+        });
+
+        document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+            // Limpiar todos los filtros
+            document.getElementById('channelDropdown').value = '';
+            document.getElementById('channelFilter').value = '';
+            document.getElementById('titleFilter').value = '';
+            document.getElementById('descriptionFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('hourFilter').value = '';
+
+            renderTable(true); // Renderizar con filtros vacíos
+        });
+
+
         // Evitar renderizados excesivos con debounce
         function debounce(func, delay = 300) {
             let timer;
@@ -579,13 +741,12 @@
         }
 
         // Aplica debounce a los filtros de texto
-        ['channelFilter', 'titleFilter', 'descriptionFilter'].forEach(id => {
+        ['channelFilter', 'titleFilter', 'descriptionFilter', 'dateFilter', 'hourFilter'].forEach(id => {
             document.getElementById(id).addEventListener('input', debounce(() => {
                 document.getElementById('channelDropdown').value = '';
                 renderTable(true);
             }));
         });
-
 
         // Scroll infinito
         window.addEventListener('scroll', () => {
