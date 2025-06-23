@@ -467,25 +467,41 @@
         let pageSize = 30;
         let renderedItems = 0;
 
-        async function fetchXML() {
-            const loader = document.getElementById('loader');
-            const reloadBtn = document.querySelector('button[onclick="fetchXML()"]');
-            reloadBtn.disabled = true;
-            loader.style.display = 'block';
+async function fetchXML() {
+    const loader = document.getElementById('loader');
+    const reloadBtn = document.querySelector('button[onclick="fetchXML()"]');
+    reloadBtn.disabled = true;
+    loader.style.display = 'block';
 
-            try {
-                const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/EPG_dobleM.xml';
-                const response = await fetch(url);
-                if (!response.ok) throw new Error("No se pudo cargar el archivo EPG.");
-                const xmlText = await response.text();
+    try {
+        const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/EPG_dobleM.xml';
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("No se pudo cargar el archivo EPG.");
+        const xmlText = await response.text();
+
+        // Parsear XML con promesa para no bloquear UI
+        await new Promise(resolve => {
+            setTimeout(() => {
                 parseXML(xmlText);
-            } catch (err) {
-                alert("Error al cargar el EPG: " + err.message);
-            } finally {
-                loader.style.display = 'none';
-                reloadBtn.disabled = false;
-            }
-        }
+                resolve();
+            }, 50); // Permite que el loader se pinte antes del parseo pesado
+        });
+
+        // Mostrar los primeros 10 resultados rápido
+        renderTable(true, 10);
+
+        // Luego cargar el resto en background, sin bloquear UI
+        setTimeout(() => {
+            renderTable(false);
+        }, 100);
+
+    } catch (err) {
+        alert("Error al cargar el EPG: " + err.message);
+    } finally {
+        loader.style.display = 'none';
+        reloadBtn.disabled = false;
+    }
+}
 
         document.getElementById('fileInput').addEventListener('change', (event) => {
             const file = event.target.files[0];
@@ -593,75 +609,54 @@
             });
         }
 
-        function renderTable(initial = false) {
-            if (initial) {
-                const filters = {
-                    channel: document.getElementById('channelFilter').value.toLowerCase(),
-                    title: document.getElementById('titleFilter').value.toLowerCase(),
-                    description: document.getElementById('descriptionFilter').value.toLowerCase(),
-                    date: document.getElementById('dateFilter').value, // formato yyyy-mm-dd
-                    hour: document.getElementById('hourFilter').value // string numérico o vacío
-                };
+function renderTable(initial = false, initialPageSize = pageSize) {
+    if (initial) {
+        // Recalcular filtro y lista filtrada
+        const filters = {
+            channel: document.getElementById('channelFilter').value.toLowerCase(),
+            title: document.getElementById('titleFilter').value.toLowerCase(),
+            description: document.getElementById('descriptionFilter').value.toLowerCase(),
+            date: document.getElementById('dateFilter').value,
+            hour: document.getElementById('hourFilter').value
+        };
 
-                filteredData = epgData.filter(item => {
-                    // Filtro por canal, título, descripción (igual que antes)
-                    if (filters.channel && !item.channel.toLowerCase().includes(filters.channel)) return false;
-                    if (filters.title && !item.title.toLowerCase().includes(filters.title)) return false;
-                    if (filters.description && !item.description.toLowerCase().includes(filters.description)) return false;
+        filteredData = epgData.filter(item => {
+            // Filtros igual que antes...
+            if (filters.channel && !item.channel.toLowerCase().includes(filters.channel)) return false;
+            if (filters.title && !item.title.toLowerCase().includes(filters.title)) return false;
+            if (filters.description && !item.description.toLowerCase().includes(filters.description)) return false;
 
-                    // Filtro por fecha
-                    if (filters.date) {
-                        // Convertir item.date dd/mm/yyyy a yyyy-mm-dd para comparar
-                        const parts = item.date.split('/');
-                        const itemDateFormatted = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
-                        if (itemDateFormatted !== filters.date) return false;
-                    }
-
-                    // Filtro por hora
-                    if (filters.hour !== '') {
-                        // Hora filtro como número
-                        const filterHour = parseInt(filters.hour, 10);
-                        if (isNaN(filterHour) || filterHour < 0 || filterHour > 23) return false;
-
-                        // Obtener hora inicio programa (item.start) como número
-                        const itemHour = parseInt(item.start.split(':')[0], 10);
-                        if (isNaN(itemHour)) return false;
-
-                        // Queremos incluir:
-                        //  - programas que empiezan a la hora o después (itemHour >= filterHour)
-                        //  - y el programa anterior inmediato (único programa que empezó antes pero aún podría estar en emisión)
-
-                        // Primero, aceptamos los que empiezan a la hora o después:
-                        if (itemHour >= filterHour) return true;
-
-                        // Para aceptar el anterior, necesitamos comprobar que:
-                        //  - el programa empezó antes de la hora filtrada
-                        //  - y que su hora de fin (item.stop) sea igual o posterior a la hora filtrada (considerando solo horas)
-
-                        const itemStopHour = parseInt(item.stop.split(':')[0], 10);
-                        if (!isNaN(itemStopHour)) {
-                            if (itemHour < filterHour && itemStopHour >= filterHour) {
-                                return true; // este es el programa anterior inmediato aún en emisión
-                            }
-                        }
-                        return false;
-                    }
-
-                    return true; // si no hay filtro por hora, pasa
-                });
-
-                renderedItems = 0;
-                document.getElementById('data-list').innerHTML = '';
+            if (filters.date) {
+                const parts = item.date.split('/');
+                const itemDateFormatted = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
+                if (itemDateFormatted !== filters.date) return false;
             }
 
-            const chunk = filteredData.slice(renderedItems, renderedItems + pageSize);
-            renderChunk(chunk);
-            renderedItems += chunk.length;
+            if (filters.hour !== '') {
+                const filterHour = parseInt(filters.hour, 10);
+                if (isNaN(filterHour) || filterHour < 0 || filterHour > 23) return false;
+                const itemHour = parseInt(item.start.split(':')[0], 10);
+                if (isNaN(itemHour)) return false;
+                if (itemHour >= filterHour) return true;
+                const itemStopHour = parseInt(item.stop.split(':')[0], 10);
+                if (!isNaN(itemStopHour) && itemHour < filterHour && itemStopHour >= filterHour) return true;
+                return false;
+            }
 
-            document.getElementById('result-count').textContent =
-                `Mostrando ${filteredData.length} programas`;
-        }
+            return true;
+        });
 
+        renderedItems = 0;
+        document.getElementById('data-list').innerHTML = '';
+    }
+
+    // Render solo el bloque indicado
+    const chunk = filteredData.slice(renderedItems, renderedItems + initialPageSize);
+    renderChunk(chunk);
+    renderedItems += chunk.length;
+
+    document.getElementById('result-count').textContent = `Mostrando ${filteredData.length} programas`;
+}
 
         function renderChunk(data) {
             const dataList = document.getElementById('data-list');
