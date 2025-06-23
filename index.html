@@ -721,12 +721,13 @@
             const table = document.createElement('table');
             table.style.width = '100%';
             table.style.borderCollapse = 'collapse';
+            table.style.tableLayout = 'fixed'; // ¡Añade esta línea!
 
             // Encabezado de horas
             const hoursRow = document.createElement('tr');
-            hoursRow.innerHTML = `<th style="width: 120px;">Canal</th>`;
+            hoursRow.innerHTML = `<th style="width: 120px; white-space: nowrap;">Canal</th>`; // Añadido white-space para el encabezado
             for (let h = 0; h < 24; h++) {
-                hoursRow.innerHTML += `<th style="min-width: 60px;">${String(h).padStart(2, '0')}:00</th>`;
+                hoursRow.innerHTML += `<th style="width: 120px; font-size: 0.8em;">${String(h).padStart(2, '0')}:00</th>`; // <-- Añadido font-size
             }
             table.appendChild(hoursRow);
 
@@ -736,37 +737,92 @@
 
                 // Celda canal
                 const channelCell = document.createElement('td');
-                channelCell.textContent = channel;
                 channelCell.style.padding = '5px';
                 channelCell.style.background = '#222';
-                channelCell.style.color = '#00e5ff';
+                channelCell.style.color = '#FFFFFF'; // <-- Cambiado a blanco (#FFFFFF)
+                channelCell.style.verticalAlign = 'middle';
+
+                // --- INICIO CAMBIO ICONO/NOMBRE DEL CANAL ---
+                const channelIconSrc = programs[0]?.channelIcon || ''; // Obtener el icono del primer programa para este canal
+                const channelName = channel;
+
+                if (channelIconSrc) {
+                    const img = document.createElement('img');
+                    img.src = channelIconSrc;
+                    img.alt = channelName;
+                    img.style.height = '32px';
+                    img.style.width = 'auto';
+                    img.style.maxWidth = '60px';
+                    img.style.display = 'block';
+                    img.style.margin = '0 auto 2px auto';
+                    channelCell.appendChild(img);
+                }
+
+                const nameDiv = document.createElement('div');
+                nameDiv.textContent = channelName;
+                nameDiv.style.fontSize = '0.75em';
+                nameDiv.style.textAlign = 'center';
+                channelCell.appendChild(nameDiv);
+                // --- FIN CAMBIO ICONO/NOMBRE DEL CANAL ---
+
                 row.appendChild(channelCell);
 
                 const cells = new Array(24).fill(null);
 
                 programs.forEach(program => {
                     const startHour = parseInt(program.start.split(':')[0], 10);
-                    // Asegúrate de que la duración se maneje correctamente, asumiendo 1 hora si no está definida o es 0
-                    const durationInHours = Math.max(1, Math.floor(parseInt(program.duration?.split(' ')[0] || '1', 10) / 60)); // Asumiendo que la duración es en minutos originalmente
+                    // Re-calcula la duración en horas fraccionadas para un mejor ajuste del span
+                    // Asegúrate de que la fecha se parsea correctamente para el cálculo de la duración
+                    const dateParts = program.date.split('/');
+                    const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // Convertir a YYYY-MM-DD
+                    const startTime = new Date(`${formattedDate}T${program.start}:00`);
+                    const stopTime = new Date(`${formattedDate}T${program.stop}:00`);
+                    const diffMinutes = Math.round((stopTime - startTime) / 60000);
+                    // Asegura un span mínimo de 1 hora si la duración es muy corta o inválida
+                    const durationInHours = Math.max(1, diffMinutes / 60); // Ajusta a 1 como mínimo
+
                     const title = program.title || '';
                     const col = document.createElement('td');
-                    col.colSpan = Math.max(1, Math.min(durationInHours, 24 - startHour)); // Asegura que no se salga de 24 horas
-                    col.textContent = title;
+                    // Span de columnas basado en la duración, redondeando a la hora más cercana o media hora para una mejor visualización
+                    col.colSpan = Math.max(1, Math.round(durationInHours)); // Redondear a la hora más cercana para colspan
+
                     col.style.background = '#333';
                     col.style.color = '#fff';
-                    col.style.fontSize = '0.85em';
                     col.style.textAlign = 'center';
                     col.style.border = '1px solid #444';
+                    // Nuevo código para la celda del programa (col)
+                    // ...
                     col.style.padding = '2px';
+                    col.style.overflow = 'hidden'; // Puedes mantenerlo si quieres que no se "desborde" fuera del borde de la celda, pero el texto se ajustará.
+                    // col.style.whiteSpace = 'nowrap';    // ELIMINADA
+                    // col.style.textOverflow = 'ellipsis'; // ELIMINADA
+                    col.style.verticalAlign = 'top';
+                    col.style.whiteSpace = 'normal'; // Opcional: Asegura que el texto se rompa normalmente
+                    col.style.wordWrap = 'break-word'; // Opcional: Para romper palabras largas si es necesario
+                    // ...
+
+                    // --- INICIO CAMBIO TÍTULO/HORA DEL PROGRAMA ---
+                    const titleDiv = document.createElement('div');
+                    titleDiv.textContent = title;
+                    titleDiv.style.fontWeight = 'bold'; // Haz que el título resalte
+                    titleDiv.style.fontSize = '0.85em'; // Mantén el tamaño de fuente actual para el título
+                    col.appendChild(titleDiv);
+
+                    const timeDiv = document.createElement('div');
+                    // Formato para mostrar: "DD/MM/YYYY HH:MM - HH:MM"
+                    timeDiv.textContent = `${program.date} ${program.start} - ${program.stop}`;
+                    timeDiv.style.fontSize = '0.7em'; // Tamaño de fuente más pequeño para las horas
+                    timeDiv.style.color = '#ccc'; // Color más claro para las horas
+                    timeDiv.style.marginTop = '2px'; // Pequeño margen encima de las horas
+                    col.appendChild(timeDiv);
+                    // --- FIN CAMBIO TÍTULO/HORA DEL PROGRAMA ---
 
                     // Marcar como ocupado para no sobreescribir
-                    // Simplemente asignamos la celda al inicio
                     cells[startHour] = col;
 
-                    // Y marcamos las celdas siguientes como ocupadas por esta entrada
                     for (let i = 1; i < col.colSpan; i++) {
                         if (startHour + i < 24) {
-                            cells[startHour + i] = 'occupied'; // Usar un marcador para celdas ocupadas
+                            cells[startHour + i] = 'occupied';
                         }
                     }
                 });
