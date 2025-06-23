@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>EPG dobleM - 5.3</title>
+    <title>EPG dobleM - 5.4</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
     <style>
         :root {
@@ -43,10 +43,10 @@
 
         #dateFilter {
             width: auto;
-            min-width: 90px;
-            max-width: 120px;
+            min-width: 110px;
+            max-width: 140px;
             padding: 6px 8px;
-            font-size: 0.85em;
+            font-size: 0.95em;
             box-sizing: border-box;
         }
 
@@ -320,6 +320,13 @@
         body.light-mode .program-card {
             background-color: var(--color-bg-card-light);
             color: var(--color-text-light);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            /* Sombra más suave para modo claro */
+        }
+
+        body.light-mode .program-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            /* Sombra más suave al pasar el ratón */
         }
 
         body.light-mode .card-date,
@@ -328,17 +335,172 @@
             color: var(--color-text-light);
         }
 
-        body.light-mode .card-text .description {
+        body.light-mode .card-text .description,
+        body.light-mode .channel-name,
+        body.light-mode #result-count {
             color: var(--color-text-muted-light);
         }
 
         body.light-mode button {
             background-color: var(--color-primary-hover);
             color: var(--color-text-light);
+            /* Asegura texto oscuro en botones claros */
+        }
+
+        /* Light mode overrides */
+        body.light-mode {
+            background: linear-gradient(180deg, var(--color-bg-light-start), var(--color-bg-light-end));
+            color: var(--color-text-light);
+            /* Texto principal oscuro */
+        }
+
+        body.light-mode .program-card {
+            background-color: var(--color-bg-card-light);
+            /* Fondo de la tarjeta blanca */
+            color: var(--color-text-light);
+            /* Texto de la tarjeta oscuro */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            /* Sombra más suave para modo claro */
+        }
+
+        body.light-mode .program-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            /* Sombra más suave al pasar el ratón */
+        }
+
+        body.light-mode .card-date,
+        body.light-mode .card-time,
+        body.light-mode .card-text .title {
+            color: var(--color-text-light);
+            /* Asegura que la fecha, hora y título sean oscuros */
+        }
+
+        body.light-mode .card-text .description,
+        body.light-mode .channel-name,
+        body.light-mode #result-count {
+            color: var(--color-text-muted-light);
+            /* Texto muteado más oscuro */
+        }
+
+        body.light-mode button {
+            background-color: var(--color-primary-hover);
+            /* Fondo del botón primario claro */
+            color: var(--color-text-light);
+            /* Texto oscuro en botones claros */
+        }
+
+        /* --- Estilos para los Controles (filtros) en modo claro --- */
+        body.light-mode input[type="text"],
+        body.light-mode select,
+        body.light-mode input[type="date"],
+        body.light-mode input[type="number"] {
+            background-color: var(--color-bg-controls-light);
+            /* Fondo más claro para inputs/selects */
+            border-color: var(--color-border-input-dark);
+            /* Borde que contraste */
+            color: var(--color-text-light);
+            /* Texto oscuro en inputs */
+        }
+
+        body.light-mode input[type="text"]:focus,
+        body.light-mode select:focus,
+        body.light-mode input[type="date"]:focus,
+        body.light-mode input[type="number"]:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            /* Borde al enfocar, usando el color primario */
+        }
+
+        body.light-mode #controls {
+            background: var(--color-bg-controls-light);
+            /* Fondo para la sección de controles */
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+            /* Sombra suave para controles */
+        }
+
+        body.light-mode label {
+            /* Asegura el color del texto de la etiqueta en modo claro */
+            color: var(--color-text-muted-light);
+        }
+
+        body.light-mode #resetFiltersBtn {
+            background-color: var(--color-primary);
+            /* Color del botón de reset */
+            color: #000;
+            /* Texto negro */
+        }
+
+        body.light-mode #resetFiltersBtn:hover {
+            background-color: var(--color-primary-hover);
+            /* Hover para el botón de reset */
+        }
+
+        /* --- Estilos de la Grilla en modo claro --- */
+        body.light-mode #grid-container table {
+            border: 1px solid var(--color-border-input-dark);
+            /* Borde exterior de la tabla */
+        }
+
+        body.light-mode #grid-container th {
+            background-color: var(--color-bg-controls-light);
+            /* Fondo de los encabezados de la tabla */
+            color: var(--color-text-light);
+            /* Texto de los encabezados */
+            border: 1px solid var(--color-border-input-dark);
+        }
+
+        body.light-mode #grid-container td {
+            border: 1px solid var(--color-border-input-dark);
+            /* Borde de las celdas de la grilla */
+            color: var(--color-text-light);
+            background-color: #ffffff;
+            /* Las celdas VACÍAS por defecto serán BLANCAS */
+        }
+
+        body.light-mode #grid-container td[style*="background: rgb(51, 51, 51)"] {
+            /* Celda con PROGRAMA (en modo oscuro tenía #333) */
+            background-color: #f0f0f0 !important;
+            /* Fondo GRIS CLARO para las celdas con CONTENIDO de programa */
+            color: var(--color-text-light);
+        }
+
+        body.light-mode #grid-container td[style*="background: rgb(34, 34, 34)"] {
+            /* Celda del CANAL (en modo oscuro tenía #222) */
+            background-color: #e0e0e0 !important;
+            /* Fondo GRIS MEDIO para el nombre del canal */
+            color: var(--color-text-light);
+        }
+
+        body.light-mode #grid-container td>div {
+            /* Título del programa en grilla */
+            color: var(--color-text-light);
+        }
+
+        body.light-mode #grid-container td>div:last-child {
+            /* Hora del programa en grilla */
+            color: var(--color-text-light) !important;
+            /* <--- ¡AÑADIDO !important! */
+        }
+
+        /* --- Estilos del Loader en modo claro --- */
+        body.light-mode #loader-spinner {
+            border-color: var(--color-primary-hover);
+            /* Color del spinner */
+            border-top-color: transparent;
+        }
+
+        body.light-mode #loader p {
+            color: var(--color-text-muted-light) !important;
+            /* Texto del loader */
         }
 
         /* Responsive styles */
         @media (max-width: 768px) {
+            body.light-mode .card-date {
+                color: var(--color-text-muted-light) !important;
+                /* Asegura el color en la vista de lista */
+            }
+
             .card-body {
                 flex-direction: column;
                 align-items: flex-start;
@@ -546,7 +708,6 @@
         function parseXML(xmlText) {
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
-            // Validar errores de parseo del XML
             const parserError = xmlDoc.querySelector('parsererror');
             if (parserError) {
                 console.error("Error XML:", parserError.textContent);
@@ -557,17 +718,23 @@
 
             const channels = {};
             const channelElements = xmlDoc.getElementsByTagName('channel');
-            channelsList = [];
+            const tempChannelsSet = new Set(); // Usamos un Set para evitar duplicados
+            channelsList = []; // Reiniciamos channelsList
 
             for (let i = 0; i < channelElements.length; i++) {
                 const channel = channelElements[i];
                 const channelId = channel.getAttribute('id');
                 const iconSrc = channel.getElementsByTagName('icon')[0]?.getAttribute('src') || '';
                 channels[channelId] = iconSrc;
-                channelsList.push(channelId);
+
+                // Si el canal no ha sido añadido aún, lo añadimos a la lista
+                if (!tempChannelsSet.has(channelId)) {
+                    tempChannelsSet.add(channelId);
+                    channelsList.push(channelId); // Añadir en el orden de aparición del XML
+                }
             }
 
-            channelsList = [...new Set(channelsList)].sort();
+            // channelsList ahora contendrá los IDs de los canales en el orden del XML, sin duplicados.
             populateChannelDropdown();
 
             for (let i = 0; i < programmes.length; i++) {
@@ -702,42 +869,47 @@
 
         function renderGridView() {
             const container = document.getElementById('grid-container');
-            container.innerHTML = ''; // Limpiar contenido previo
+            container.innerHTML = '';
 
-            // Agrupar por canal
             const grouped = {};
             filteredData.forEach(item => {
                 if (!grouped[item.channel]) grouped[item.channel] = [];
                 grouped[item.channel].push(item);
             });
 
-            // Crear tabla
             const table = document.createElement('table');
             table.style.width = '100%';
             table.style.borderCollapse = 'collapse';
-            table.style.tableLayout = 'fixed'; // ¡Añade esta línea!
+            table.style.tableLayout = 'fixed';
 
-            // Encabezado de horas
             const hoursRow = document.createElement('tr');
-            hoursRow.innerHTML = `<th style="width: 120px; white-space: nowrap;">Canal</th>`; // Añadido white-space para el encabezado
+            hoursRow.innerHTML = `<th style="width: 120px; white-space: nowrap;">Canal</th>`;
             for (let h = 0; h < 24; h++) {
-                hoursRow.innerHTML += `<th style="width: 150px; font-size: 0.8em;">${String(h).padStart(2, '0')}:00</th>`; // <-- Añadido font-size
+                hoursRow.innerHTML += `<th style="width: 150px; font-size: 0.8em;">${String(h).padStart(2, '0')}:00</th>`;
             }
             table.appendChild(hoursRow);
 
-            // Filas por canal
-            for (const [channel, programs] of Object.entries(grouped)) {
+            // Filtrar channelsList para incluir solo los canales que tienen programas actualmente filtrados
+            // Pero ahora, channelsList ya tiene el orden del XML
+            const channelsInFilteredData = new Set(filteredData.map(item => item.channel));
+            const sortedChannels = channelsList.filter(channel => channelsInFilteredData.has(channel));
+
+            for (const channel of sortedChannels) {
+                const programs = grouped[channel];
+
+                if (!programs || programs.length === 0) {
+                    continue;
+                }
+
                 const row = document.createElement('tr');
 
-                // Celda canal
                 const channelCell = document.createElement('td');
                 channelCell.style.padding = '5px';
                 channelCell.style.background = '#222';
-                channelCell.style.color = '#FFFFFF'; // <-- Cambiado a blanco (#FFFFFF)
+                channelCell.style.color = '#FFFFFF';
                 channelCell.style.verticalAlign = 'middle';
 
-                // --- INICIO CAMBIO ICONO/NOMBRE DEL CANAL ---
-                const channelIconSrc = programs[0]?.channelIcon || ''; // Obtener el icono del primer programa para este canal
+                const channelIconSrc = programs[0]?.channelIcon || '';
                 const channelName = channel;
 
                 if (channelIconSrc) {
@@ -757,7 +929,6 @@
                 nameDiv.style.fontSize = '0.75em';
                 nameDiv.style.textAlign = 'center';
                 channelCell.appendChild(nameDiv);
-                // --- FIN CAMBIO ICONO/NOMBRE DEL CANAL ---
 
                 row.appendChild(channelCell);
 
@@ -765,53 +936,40 @@
 
                 programs.forEach(program => {
                     const startHour = parseInt(program.start.split(':')[0], 10);
-                    // Re-calcula la duración en horas fraccionadas para un mejor ajuste del span
-                    // Asegúrate de que la fecha se parsea correctamente para el cálculo de la duración
                     const dateParts = program.date.split('/');
-                    const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // Convertir a YYYY-MM-DD
+                    const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
                     const startTime = new Date(`${formattedDate}T${program.start}:00`);
                     const stopTime = new Date(`${formattedDate}T${program.stop}:00`);
                     const diffMinutes = Math.round((stopTime - startTime) / 60000);
-                    // Asegura un span mínimo de 1 hora si la duración es muy corta o inválida
-                    const durationInHours = Math.max(1, diffMinutes / 60); // Ajusta a 1 como mínimo
+                    const durationInHours = Math.max(1, diffMinutes / 60);
 
                     const title = program.title || '';
                     const col = document.createElement('td');
-                    // Span de columnas basado en la duración, redondeando a la hora más cercana o media hora para una mejor visualización
-                    col.colSpan = Math.max(1, Math.round(durationInHours)); // Redondear a la hora más cercana para colspan
+                    col.colSpan = Math.max(1, Math.round(durationInHours));
 
                     col.style.background = '#333';
                     col.style.color = '#fff';
                     col.style.textAlign = 'center';
                     col.style.border = '1px solid #444';
-                    // Nuevo código para la celda del programa (col)
-                    // ...
                     col.style.padding = '2px';
-                    col.style.overflow = 'hidden'; // Puedes mantenerlo si quieres que no se "desborde" fuera del borde de la celda, pero el texto se ajustará.
-                    // col.style.whiteSpace = 'nowrap';    // ELIMINADA
-                    // col.style.textOverflow = 'ellipsis'; // ELIMINADA
+                    col.style.overflow = 'hidden';
                     col.style.verticalAlign = 'top';
-                    col.style.whiteSpace = 'normal'; // Opcional: Asegura que el texto se rompa normalmente
-                    col.style.wordWrap = 'break-word'; // Opcional: Para romper palabras largas si es necesario
-                    // ...
+                    col.style.whiteSpace = 'normal';
+                    col.style.wordWrap = 'break-word';
 
-                    // --- INICIO CAMBIO TÍTULO/HORA DEL PROGRAMA ---
                     const titleDiv = document.createElement('div');
                     titleDiv.textContent = title;
-                    titleDiv.style.fontWeight = 'bold'; // Haz que el título resalte
-                    titleDiv.style.fontSize = '0.85em'; // Mantén el tamaño de fuente actual para el título
+                    titleDiv.style.fontWeight = 'bold';
+                    titleDiv.style.fontSize = '0.85em';
                     col.appendChild(titleDiv);
 
                     const timeDiv = document.createElement('div');
-                    // Formato para mostrar: "DD/MM/YYYY HH:MM - HH:MM"
                     timeDiv.textContent = `${program.date} ${program.start} - ${program.stop}`;
-                    timeDiv.style.fontSize = '0.7em'; // Tamaño de fuente más pequeño para las horas
-                    timeDiv.style.color = '#ccc'; // Color más claro para las horas
-                    timeDiv.style.marginTop = '2px'; // Pequeño margen encima de las horas
+                    timeDiv.style.fontSize = '0.7em';
+                    timeDiv.style.color = '#ccc';
+                    timeDiv.style.marginTop = '2px';
                     col.appendChild(timeDiv);
-                    // --- FIN CAMBIO TÍTULO/HORA DEL PROGRAMA ---
 
-                    // Marcar como ocupado para no sobreescribir
                     cells[startHour] = col;
 
                     for (let i = 1; i < col.colSpan; i++) {
@@ -821,18 +979,16 @@
                     }
                 });
 
-                // Agregar las 24 columnas
                 for (let h = 0; h < 24; h++) {
                     if (cells[h] && cells[h] !== 'occupied') {
                         row.appendChild(cells[h]);
-                        h += cells[h].colSpan - 1; // Avanzar el contador de la hora
-                    } else if (cells[h] === null) { // Si la celda no está ocupada y es nula
+                        h += cells[h].colSpan - 1;
+                    } else if (cells[h] === null) {
                         const empty = document.createElement('td');
                         empty.style.border = '1px solid #444';
                         empty.innerHTML = '&nbsp;';
                         row.appendChild(empty);
                     }
-                    // Si cells[h] es 'occupied', significa que ya fue añadida por una celda anterior, no hacer nada.
                 }
 
                 table.appendChild(row);
@@ -840,7 +996,6 @@
 
             container.appendChild(table);
         }
-
 
         function renderChunk(data) {
             const dataList = document.getElementById('data-list');
