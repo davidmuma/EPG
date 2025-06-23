@@ -404,6 +404,7 @@
     <h1>EPG dobleM</h1>
 
     <div id="top-buttons" style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: nowrap;">
+        <button onclick="toggleViewMode()" id="viewToggleBtn" title="Cambiar vista">📅</button>
         <button onclick="toggleDarkMode()" id="themeToggleBtn" title="Cambiar tema">🌙</button>
         <button onclick="fetchXML()" id="reloadBtn" title="Recargar EPG">🔃</button>
         <button id="uploadXmlBtn" title="Usar otro XML">📂</button>
@@ -452,6 +453,9 @@
 
     </div>
 
+    <div id="grid-container" style="margin-top: 30px;"></div>
+
+
     <div id="loader" style="display: none; text-align:center; margin-top:20px;">
         <span id="loader-spinner"></span>
         <p style="color:#ccc;">Cargando EPG...</p>
@@ -467,41 +471,41 @@
         let pageSize = 30;
         let renderedItems = 0;
 
-async function fetchXML() {
-    const loader = document.getElementById('loader');
-    const reloadBtn = document.querySelector('button[onclick="fetchXML()"]');
-    reloadBtn.disabled = true;
-    loader.style.display = 'block';
+        async function fetchXML() {
+            const loader = document.getElementById('loader');
+            const reloadBtn = document.querySelector('button[onclick="fetchXML()"]');
+            reloadBtn.disabled = true;
+            loader.style.display = 'block';
 
-    try {
-        const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/EPG_dobleM.xml';
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("No se pudo cargar el archivo EPG.");
-        const xmlText = await response.text();
+            try {
+                const url = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/EPG_dobleM.xml';
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("No se pudo cargar el archivo EPG.");
+                const xmlText = await response.text();
 
-        // Parsear XML con promesa para no bloquear UI
-        await new Promise(resolve => {
-            setTimeout(() => {
-                parseXML(xmlText);
-                resolve();
-            }, 50); // Permite que el loader se pinte antes del parseo pesado
-        });
+                // Parsear XML con promesa para no bloquear UI
+                await new Promise(resolve => {
+                    setTimeout(() => {
+                        parseXML(xmlText);
+                        resolve();
+                    }, 50); // Permite que el loader se pinte antes del parseo pesado
+                });
 
-        // Mostrar los primeros 10 resultados rápido
-        renderTable(true, 10);
+                // Mostrar los primeros 10 resultados rápido
+                renderTable(true, 10);
 
-        // Luego cargar el resto en background, sin bloquear UI
-        setTimeout(() => {
-            renderTable(false);
-        }, 100);
+                // Luego cargar el resto en background, sin bloquear UI
+                setTimeout(() => {
+                    renderTable(false);
+                }, 100);
 
-    } catch (err) {
-        alert("Error al cargar el EPG: " + err.message);
-    } finally {
-        loader.style.display = 'none';
-        reloadBtn.disabled = false;
-    }
-}
+            } catch (err) {
+                alert("Error al cargar el EPG: " + err.message);
+            } finally {
+                loader.style.display = 'none';
+                reloadBtn.disabled = false;
+            }
+        }
 
         document.getElementById('fileInput').addEventListener('change', (event) => {
             const file = event.target.files[0];
@@ -533,7 +537,8 @@ async function fetchXML() {
             // Validar errores de parseo del XML
             const parserError = xmlDoc.querySelector('parsererror');
             if (parserError) {
-                throw new Error("El archivo XML contiene errores de formato.");
+                console.error("Error XML:", parserError.textContent);
+                throw new Error("El archivo XML contiene errores.");
             }
             const programmes = xmlDoc.getElementsByTagName('programme');
             epgData = [];
@@ -609,54 +614,156 @@ async function fetchXML() {
             });
         }
 
-function renderTable(initial = false, initialPageSize = pageSize) {
-    if (initial) {
-        // Recalcular filtro y lista filtrada
-        const filters = {
-            channel: document.getElementById('channelFilter').value.toLowerCase(),
-            title: document.getElementById('titleFilter').value.toLowerCase(),
-            description: document.getElementById('descriptionFilter').value.toLowerCase(),
-            date: document.getElementById('dateFilter').value,
-            hour: document.getElementById('hourFilter').value
-        };
+        function renderTable(initial = false, initialPageSize = pageSize) {
+            if (initial) {
+                // Recalcular filtro y lista filtrada
+                const filters = {
+                    channel: document.getElementById('channelFilter').value.toLowerCase(),
+                    title: document.getElementById('titleFilter').value.toLowerCase(),
+                    description: document.getElementById('descriptionFilter').value.toLowerCase(),
+                    date: document.getElementById('dateFilter').value,
+                    hour: document.getElementById('hourFilter').value
+                };
 
-        filteredData = epgData.filter(item => {
-            // Filtros igual que antes...
-            if (filters.channel && !item.channel.toLowerCase().includes(filters.channel)) return false;
-            if (filters.title && !item.title.toLowerCase().includes(filters.title)) return false;
-            if (filters.description && !item.description.toLowerCase().includes(filters.description)) return false;
+                filteredData = epgData.filter(item => {
+                    // Filtros igual que antes...
+                    if (filters.channel && !item.channel.toLowerCase().includes(filters.channel)) return false;
+                    if (filters.title && !item.title.toLowerCase().includes(filters.title)) return false;
+                    if (filters.description && !item.description.toLowerCase().includes(filters.description)) return false;
 
-            if (filters.date) {
-                const parts = item.date.split('/');
-                const itemDateFormatted = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
-                if (itemDateFormatted !== filters.date) return false;
+                    if (filters.date) {
+                        const parts = item.date.split('/');
+                        const itemDateFormatted = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
+                        if (itemDateFormatted !== filters.date) return false;
+                    }
+
+                    if (filters.hour !== '') {
+                        const filterHour = parseInt(filters.hour, 10);
+                        if (isNaN(filterHour) || filterHour < 0 || filterHour > 23) return false;
+                        const itemHour = parseInt(item.start.split(':')[0], 10);
+                        if (isNaN(itemHour)) return false;
+                        if (itemHour >= filterHour) return true;
+                        const itemStopHour = parseInt(item.stop.split(':')[0], 10);
+                        if (!isNaN(itemStopHour) && itemHour < filterHour && itemStopHour >= filterHour) return true;
+                        return false;
+                    }
+
+                    return true;
+                });
+
+                renderedItems = 0;
+                document.getElementById('data-list').innerHTML = '';
             }
 
-            if (filters.hour !== '') {
-                const filterHour = parseInt(filters.hour, 10);
-                if (isNaN(filterHour) || filterHour < 0 || filterHour > 23) return false;
-                const itemHour = parseInt(item.start.split(':')[0], 10);
-                if (isNaN(itemHour)) return false;
-                if (itemHour >= filterHour) return true;
-                const itemStopHour = parseInt(item.stop.split(':')[0], 10);
-                if (!isNaN(itemStopHour) && itemHour < filterHour && itemStopHour >= filterHour) return true;
-                return false;
+            // Render solo el bloque indicado
+            const chunk = filteredData.slice(renderedItems, renderedItems + initialPageSize);
+            renderChunk(chunk);
+            renderedItems += chunk.length;
+
+            document.getElementById('result-count').textContent = `Mostrando ${filteredData.length} programas`;
+        }
+
+        let gridView = false;
+
+        function toggleViewMode() {
+            gridView = !gridView;
+            document.getElementById('data-list').style.display = gridView ? 'none' : 'block';
+            document.getElementById('grid-container').style.display = gridView ? 'block' : 'none';
+            document.getElementById('viewToggleBtn').textContent = gridView ? '📋' : '📅';
+            if (gridView) {
+                renderCurrentView();
+            }
+        }
+
+        function renderCurrentView() {
+            if (gridView) {
+                document.getElementById('data-list').style.display = 'none';
+                document.getElementById('grid-container').style.display = 'block';
+                renderTable(true); // Para actualizar filteredData
+                renderGridView(); // Para dibujar la grilla
+            } else {
+                document.getElementById('grid-container').style.display = 'none';
+                document.getElementById('data-list').style.display = 'block';
+                renderTable(true);
+            }
+        }
+
+        function renderGridView() {
+            const container = document.getElementById('grid-container');
+            container.innerHTML = ''; // Limpiar contenido previo
+
+            // Agrupar por canal
+            const grouped = {};
+            filteredData.forEach(item => {
+                if (!grouped[item.channel]) grouped[item.channel] = [];
+                grouped[item.channel].push(item);
+            });
+
+            // Crear tabla
+            const table = document.createElement('table');
+            table.style.width = '100%';
+            table.style.borderCollapse = 'collapse';
+
+            // Encabezado de horas
+            const hoursRow = document.createElement('tr');
+            hoursRow.innerHTML = `<th style="width: 120px;">Canal</th>`;
+            for (let h = 0; h < 24; h++) {
+                hoursRow.innerHTML += `<th style="min-width: 60px;">${String(h).padStart(2, '0')}:00</th>`;
+            }
+            table.appendChild(hoursRow);
+
+            // Filas por canal
+            for (const [channel, programs] of Object.entries(grouped)) {
+                const row = document.createElement('tr');
+
+                // Celda canal
+                const channelCell = document.createElement('td');
+                channelCell.textContent = channel;
+                channelCell.style.padding = '5px';
+                channelCell.style.background = '#222';
+                channelCell.style.color = '#00e5ff';
+                row.appendChild(channelCell);
+
+                const cells = new Array(24).fill(null);
+
+                programs.forEach(program => {
+                    const startHour = parseInt(program.start.split(':')[0], 10);
+                    const duration = parseInt(program.duration?.split(' ')[0] || '1', 10);
+                    const title = program.title || '';
+                    const col = document.createElement('td');
+                    col.colSpan = Math.max(1, Math.min(duration, 24 - startHour));
+                    col.textContent = title;
+                    col.style.background = '#333';
+                    col.style.color = '#fff';
+                    col.style.fontSize = '0.85em';
+                    col.style.textAlign = 'center';
+                    col.style.border = '1px solid #444';
+                    col.style.padding = '2px';
+
+                    // Marcar como ocupado para no sobreescribir
+                    cells[startHour] = col;
+                });
+
+                // Agregar las 24 columnas
+                for (let h = 0; h < 24; h++) {
+                    if (cells[h]) {
+                        row.appendChild(cells[h]);
+                        const span = cells[h].colSpan || 1;
+                        h += span - 1;
+                    } else {
+                        const empty = document.createElement('td');
+                        empty.style.border = '1px solid #444';
+                        empty.innerHTML = '&nbsp;';
+                        row.appendChild(empty);
+                    }
+                }
+
+                table.appendChild(row);
             }
 
-            return true;
-        });
+            container.appendChild(table);
+        }
 
-        renderedItems = 0;
-        document.getElementById('data-list').innerHTML = '';
-    }
-
-    // Render solo el bloque indicado
-    const chunk = filteredData.slice(renderedItems, renderedItems + initialPageSize);
-    renderChunk(chunk);
-    renderedItems += chunk.length;
-
-    document.getElementById('result-count').textContent = `Mostrando ${filteredData.length} programas`;
-}
 
         function renderChunk(data) {
             const dataList = document.getElementById('data-list');
@@ -702,7 +809,7 @@ function renderTable(initial = false, initialPageSize = pageSize) {
         // Filtros
         document.getElementById('channelDropdown').addEventListener('input', () => {
             document.getElementById('channelFilter').value = document.getElementById('channelDropdown').value;
-            renderTable(true);
+            renderCurrentView();
         });
 
         document.getElementById('dateFilter').addEventListener('input', () => {
@@ -721,8 +828,7 @@ function renderTable(initial = false, initialPageSize = pageSize) {
             document.getElementById('descriptionFilter').value = '';
             document.getElementById('dateFilter').value = '';
             document.getElementById('hourFilter').value = '';
-
-            renderTable(true); // Renderizar con filtros vacíos
+            renderCurrentView();
         });
 
 
@@ -739,7 +845,7 @@ function renderTable(initial = false, initialPageSize = pageSize) {
         ['channelFilter', 'titleFilter', 'descriptionFilter', 'dateFilter', 'hourFilter'].forEach(id => {
             document.getElementById(id).addEventListener('input', debounce(() => {
                 document.getElementById('channelDropdown').value = '';
-                renderTable(true);
+                renderCurrentView();
             }));
         });
 
