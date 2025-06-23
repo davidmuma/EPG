@@ -46,8 +46,7 @@
             min-width: 90px;
             max-width: 120px;
             padding: 6px 8px;
-            font-size: 0.95em;
-            /* tamaño igual para ambos */
+            font-size: 0.85em;
             box-sizing: border-box;
         }
 
@@ -57,7 +56,6 @@
             max-width: 120px;
             padding: 6px 8px;
             font-size: 0.85em;
-            /* tamaño igual para ambos */
             box-sizing: border-box;
         }
 
@@ -723,7 +721,7 @@
             const hoursRow = document.createElement('tr');
             hoursRow.innerHTML = `<th style="width: 120px; white-space: nowrap;">Canal</th>`; // Añadido white-space para el encabezado
             for (let h = 0; h < 24; h++) {
-                hoursRow.innerHTML += `<th style="width: 120px; font-size: 0.8em;">${String(h).padStart(2, '0')}:00</th>`; // <-- Añadido font-size
+                hoursRow.innerHTML += `<th style="width: 150px; font-size: 0.8em;">${String(h).padStart(2, '0')}:00</th>`; // <-- Añadido font-size
             }
             table.appendChild(hoursRow);
 
