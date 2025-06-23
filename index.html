@@ -385,6 +385,11 @@
             .card-time {
                 margin-top: 4px;
             }
+
+            /* Nueva regla para la fecha en pantallas pequeñas */
+            .card-date {
+                font-size: 0.8em;
+            }
         }
 
         @keyframes spin {
@@ -418,7 +423,6 @@
         <input type="text" id="channelFilter" placeholder="Filtrar por Canal" />
         <input type="text" id="titleFilter" placeholder="Filtrar por Título" />
         <input type="text" id="descriptionFilter" placeholder="Filtrar por Descripción" />
-        <!-- Grupo fecha + hora -->
         <div id="dateHourGroup" style="display: inline-flex; gap: 8px; align-items: center;">
             <input type="date" id="dateFilter" />
             <select id="hourFilter">
@@ -470,6 +474,20 @@
         let filteredData = [];
         let pageSize = 30;
         let renderedItems = 0;
+
+        // Función para obtener la fecha actual en formato YYYY-MM-DD
+        function getCurrentDateFormatted() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // Los meses son de 0-11
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Función para establecer la fecha actual en el input de fecha
+        function setDateToCurrent() {
+            document.getElementById('dateFilter').value = getCurrentDateFormatted();
+        }
 
         async function fetchXML() {
             const loader = document.getElementById('loader');
@@ -728,10 +746,11 @@
 
                 programs.forEach(program => {
                     const startHour = parseInt(program.start.split(':')[0], 10);
-                    const duration = parseInt(program.duration?.split(' ')[0] || '1', 10);
+                    // Asegúrate de que la duración se maneje correctamente, asumiendo 1 hora si no está definida o es 0
+                    const durationInHours = Math.max(1, Math.floor(parseInt(program.duration?.split(' ')[0] || '1', 10) / 60)); // Asumiendo que la duración es en minutos originalmente
                     const title = program.title || '';
                     const col = document.createElement('td');
-                    col.colSpan = Math.max(1, Math.min(duration, 24 - startHour));
+                    col.colSpan = Math.max(1, Math.min(durationInHours, 24 - startHour)); // Asegura que no se salga de 24 horas
                     col.textContent = title;
                     col.style.background = '#333';
                     col.style.color = '#fff';
@@ -741,21 +760,29 @@
                     col.style.padding = '2px';
 
                     // Marcar como ocupado para no sobreescribir
+                    // Simplemente asignamos la celda al inicio
                     cells[startHour] = col;
+
+                    // Y marcamos las celdas siguientes como ocupadas por esta entrada
+                    for (let i = 1; i < col.colSpan; i++) {
+                        if (startHour + i < 24) {
+                            cells[startHour + i] = 'occupied'; // Usar un marcador para celdas ocupadas
+                        }
+                    }
                 });
 
                 // Agregar las 24 columnas
                 for (let h = 0; h < 24; h++) {
-                    if (cells[h]) {
+                    if (cells[h] && cells[h] !== 'occupied') {
                         row.appendChild(cells[h]);
-                        const span = cells[h].colSpan || 1;
-                        h += span - 1;
-                    } else {
+                        h += cells[h].colSpan - 1; // Avanzar el contador de la hora
+                    } else if (cells[h] === null) { // Si la celda no está ocupada y es nula
                         const empty = document.createElement('td');
                         empty.style.border = '1px solid #444';
                         empty.innerHTML = '&nbsp;';
                         row.appendChild(empty);
                     }
+                    // Si cells[h] es 'occupied', significa que ya fue añadida por una celda anterior, no hacer nada.
                 }
 
                 table.appendChild(row);
@@ -826,7 +853,8 @@
             document.getElementById('channelFilter').value = '';
             document.getElementById('titleFilter').value = '';
             document.getElementById('descriptionFilter').value = '';
-            document.getElementById('dateFilter').value = '';
+            // Establecer la fecha al día actual
+            setDateToCurrent();
             document.getElementById('hourFilter').value = '';
             renderCurrentView();
         });
@@ -855,6 +883,9 @@
                 renderTable(false);
             }
         });
+
+        // Llama a setDateToCurrent al cargar la página para establecer la fecha inicial
+        document.addEventListener('DOMContentLoaded', setDateToCurrent);
 
         fetchXML();
     </script>
