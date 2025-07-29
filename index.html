@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>EPG dobleM - 5.5</title>
+    <title>EPG dobleM - 5.6</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
     <style>
         :root {
@@ -791,6 +791,23 @@
             });
         }
 
+        function processColoredText(text) {
+            if (!text) return ''; // Manejar el caso de texto vacío o nulo
+
+            // Expresión regular para encontrar [COLOR X]...[/COLOR]
+            // Captura el nombre del color (grupo 1) y el contenido (grupo 2)
+            const regex = /\[COLOR\s*(\w+)\](.*?)\[\/COLOR\]/g;
+
+            // Reemplaza cada coincidencia con una etiqueta <span> con estilo inline
+            const processedText = text.replace(regex, (match, colorName, content) => {
+                // Puedes añadir una lista de colores válidos o mapear a clases CSS
+                // Por simplicidad, aquí usamos el nombre directamente como color CSS
+                return `<span style="color: ${colorName};">${content}</span>`;
+            });
+
+            return processedText;
+        }
+
         function renderTable(initial = false) {
             const dataList = document.getElementById('data-list');
             const resultCount = document.getElementById('result-count');
@@ -1040,7 +1057,7 @@
                     col.style.wordWrap = 'break-word';
 
                     const titleDiv = document.createElement('div');
-                    titleDiv.textContent = title;
+                    titleDiv.innerHTML = processColoredText(title);
                     titleDiv.style.fontWeight = 'bold';
                     titleDiv.style.fontSize = '0.85em';
                     col.appendChild(titleDiv);
@@ -1101,8 +1118,8 @@
               ${item.iconSrc2 ? `<img src="${item.iconSrc2}" alt="Imagen 2 de ${item.title}">` : ''}
             </div>
             <div class="card-text">
-              <div class="title">${item.title}</div>
-              <div class="description">${item.description}</div>
+              <div class="title">${processColoredText(item.title)}</div>
+              <div class="description">${processColoredText(item.description)}</div>
             </div>
           </div>
         `;
