@@ -445,6 +445,14 @@
             color: var(--color-text-light);
             /* Texto de los encabezados */
             border: 1px solid var(--color-border-input-dark);
+
+            /* PROPIEDADES STICKY AÑADIDAS */
+            position: sticky;
+            /* NUEVA LÍNEA */
+            left: 0;
+            /* NUEVA LÍNEA */
+            z-index: 10;
+            /* NUEVA LÍNEA */
         }
 
         body.light-mode #grid-container td {
@@ -467,6 +475,14 @@
             background-color: #e0e0e0 !important;
             /* Fondo GRIS MEDIO para el nombre del canal */
             color: var(--color-text-light);
+
+            /* PROPIEDADES STICKY AÑADIDAS */
+            position: sticky;
+            /* NUEVA LÍNEA */
+            left: 0;
+            /* NUEVA LÍNEA */
+            z-index: 9;
+            /* NUEVA LÍNEA */
         }
 
         body.light-mode #grid-container td>div {
@@ -478,6 +494,44 @@
             /* Hora del programa en grilla */
             color: var(--color-text-light) !important;
             /* <--- ¡AÑADIDO !important! */
+        }
+
+        /* --- ESTILOS ADICIONALES PARA MODO OSCURO (STICKY) --- */
+        #grid-container th {
+            /* Encabezado fijo (para el scroll vertical, si se aplica) */
+            z-index: 10;
+            position: sticky;
+            top: 0;
+            /* Si quieres que el encabezado de las horas también sea sticky verticalmente */
+        }
+
+        /* Estilo específico para el TH de "Canal" (la primera celda de la cabecera) */
+        #grid-container th:first-child {
+            background: #222 !important;
+            z-index: 11;
+            /* Asegura que esté por encima de las celdas de programas y los otros THs */
+            position: sticky;
+            /* Hacemos que sea sticky horizontal y verticalmente */
+            left: 0;
+        }
+
+        /* Estilo específico para la celda de Canal (la primera de cada fila) */
+        #grid-container td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 9;
+            /* Debe estar por debajo del TH fijo */
+            background: #222 !important;
+            /* Fondo fijo para modo oscuro */
+        }
+
+        /* Estilo específico para la celda de Canal en modo claro */
+        body.light-mode #grid-container th:first-child {
+            background-color: #e0e0e0 !important;
+            /* Fondo del encabezado de canal en modo claro */
+            z-index: 11;
+            position: sticky;
+            left: 0;
         }
 
         /* --- Estilos del Loader en modo claro --- */
