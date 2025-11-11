@@ -750,7 +750,24 @@
 
         function calculateDuration(start, stop) {
             if (!start || !stop) return '';
-            const parseTime = (t) => new Date(`${t.substring(0, 4)}-${t.substring(4, 6)}-${t.substring(6, 8)}T${t.substring(8, 10)}:${t.substring(10, 12)}:00`);
+            const parseTime = (t) => {
+			  const year = parseInt(t.substring(0, 4));
+			  const month = parseInt(t.substring(4, 6)) - 1;
+			  const day = parseInt(t.substring(6, 8));
+			  const hour = parseInt(t.substring(8, 10));
+			  const minute = parseInt(t.substring(10, 12));
+			  const second = parseInt(t.substring(12, 14));
+
+			  const tzSign = t.substring(15, 16);
+			  const tzHours = parseInt(t.substring(16, 18));
+			  const tzMinutes = parseInt(t.substring(18, 20));
+
+			  const tzOffset = (tzHours * 60 + tzMinutes) * (tzSign === '+' ? 1 : -1);
+
+			  const utcDate = new Date(Date.UTC(year, month, day, hour, minute - tzOffset, second));
+
+			  return utcDate;
+			};
             const startTime = parseTime(start);
             const stopTime = parseTime(stop);
             const diffMinutes = Math.round((stopTime - startTime) / 60000);
