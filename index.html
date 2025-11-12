@@ -748,32 +748,6 @@
             }
         });
 
-        function calculateDuration(start, stop) {
-            if (!start || !stop) return '';
-            const parseTime = (t) => {
-			  const year = parseInt(t.substring(0, 4));
-			  const month = parseInt(t.substring(4, 6)) - 1;
-			  const day = parseInt(t.substring(6, 8));
-			  const hour = parseInt(t.substring(8, 10));
-			  const minute = parseInt(t.substring(10, 12));
-			  const second = parseInt(t.substring(12, 14));
-
-			  const tzSign = t.substring(15, 16);
-			  const tzHours = parseInt(t.substring(16, 18));
-			  const tzMinutes = parseInt(t.substring(18, 20));
-
-			  const tzOffset = (tzHours * 60 + tzMinutes) * (tzSign === '+' ? 1 : -1);
-
-			  const utcDate = new Date(Date.UTC(year, month, day, hour, minute - tzOffset, second));
-
-			  return utcDate;
-			};
-            const startTime = parseTime(start);
-            const stopTime = parseTime(stop);
-            const diffMinutes = Math.round((stopTime - startTime) / 60000);
-            return isNaN(diffMinutes) || diffMinutes <= 0 ? '' : `${Math.floor(diffMinutes / 60)} h ${diffMinutes % 60} min`;
-        }
-
         function parseXML(xmlText) {
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
@@ -836,21 +810,52 @@
             renderTable(true);
         }
 
-        function formatXMLTVDate(time) {
-            if (!time) return '';
-            const year = time.substring(0, 4);
-            const month = time.substring(4, 6);
-            const day = time.substring(6, 8);
-            return `${day}/${month}/${year}`;
-        }
+// ✅ Nueva función: convierte una fecha EPG (con zona horaria) a objeto Date
+function parseEPGDate(epgDateStr) {
+    // Ejemplo de entrada: "20251116060000 +0100"
+    const match = epgDateStr.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2}) ([\+\-]\d{4})$/);
+    if (!match) return null;
 
-        function formatXMLTVTime(time) {
-            if (!time) return '';
-            const hour = time.substring(8, 10);
-            const minute = time.substring(10, 12);
-            return `${hour}:${minute}`;
-        }
+    const [_, y, mo, d, h, mi, s, tz] = match;
+    // Convertimos a formato ISO con zona horaria
+    const isoString = `${y}-${mo}-${d}T${h}:${mi}:${s}${tz.slice(0, 3)}:${tz.slice(3)}`;
+    return new Date(isoString);
+}
 
+// ✅ Nueva función: formatea la fecha (dd/mm/yyyy)
+function formatXMLTVDate(epgDateStr) {
+    const date = parseEPGDate(epgDateStr);
+    if (!date) return '';
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+// ✅ Nueva función: formatea la hora local (hh:mm)
+function formatXMLTVTime(epgDateStr) {
+    const date = parseEPGDate(epgDateStr);
+    if (!date) return '';
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    return `${hour}:${minute}`;
+}
+
+// ✅ Ajuste de calculateDuration para que use la nueva función
+function calculateDuration(start, stop) {
+    const startDate = parseEPGDate(start);
+    const stopDate = parseEPGDate(stop);
+    if (!startDate || !stopDate) return '';
+
+    let diffMs = stopDate - startDate;
+    const diffMins = Math.floor(diffMs / 60000);
+    const hours = Math.floor(diffMins / 60);
+    const minutes = diffMins % 60;
+
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+}
+		
         function populateChannelDropdown() {
             const dropdown = document.getElementById('channelDropdown');
             dropdown.innerHTML = '<option value="">Seleccionar Canal</option>';
@@ -1268,3 +1273,4 @@
 </body>
 
 </html>
+
