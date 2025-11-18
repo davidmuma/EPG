@@ -345,46 +345,11 @@
             /* Asegura texto oscuro en botones claros */
         }
 
-        /* Light mode overrides */
-        body.light-mode {
-            background: linear-gradient(180deg, var(--color-bg-light-start), var(--color-bg-light-end));
-            color: var(--color-text-light);
-            /* Texto principal oscuro */
-        }
-
-        body.light-mode .program-card {
-            background-color: var(--color-bg-card-light);
-            /* Fondo de la tarjeta blanca */
-            color: var(--color-text-light);
-            /* Texto de la tarjeta oscuro */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            /* Sombra más suave para modo claro */
-        }
-
-        body.light-mode .program-card:hover {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-            /* Sombra más suave al pasar el ratón */
-        }
-
         body.light-mode .card-date,
         body.light-mode .card-time,
         body.light-mode .card-text .title {
             color: var(--color-text-light);
             /* Asegura que la fecha, hora y título sean oscuros */
-        }
-
-        body.light-mode .card-text .description,
-        body.light-mode .channel-name,
-        body.light-mode #result-count {
-            color: var(--color-text-muted-light);
-            /* Texto muteado más oscuro */
-        }
-
-        body.light-mode button {
-            background-color: var(--color-primary-hover);
-            /* Fondo del botón primario claro */
-            color: var(--color-text-light);
-            /* Texto oscuro en botones claros */
         }
 
         /* --- Estilos para los Controles (filtros) en modo claro --- */
@@ -810,52 +775,52 @@
             renderTable(true);
         }
 
-// ✅ Nueva función: convierte una fecha EPG (con zona horaria) a objeto Date
-function parseEPGDate(epgDateStr) {
-    // Ejemplo de entrada: "20251116060000 +0100"
-    const match = epgDateStr.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2}) ([\+\-]\d{4})$/);
-    if (!match) return null;
+        // ✅ Nueva función: convierte una fecha EPG (con zona horaria) a objeto Date
+        function parseEPGDate(epgDateStr) {
+            // Ejemplo de entrada: "20251116060000 +0100"
+            const match = epgDateStr.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2}) ([\+\-]\d{4})$/);
+            if (!match) return null;
 
-    const [_, y, mo, d, h, mi, s, tz] = match;
-    // Convertimos a formato ISO con zona horaria
-    const isoString = `${y}-${mo}-${d}T${h}:${mi}:${s}${tz.slice(0, 3)}:${tz.slice(3)}`;
-    return new Date(isoString);
-}
+            const [_, y, mo, d, h, mi, s, tz] = match;
+            // Convertimos a formato ISO con zona horaria
+            const isoString = `${y}-${mo}-${d}T${h}:${mi}:${s}${tz.slice(0, 3)}:${tz.slice(3)}`;
+            return new Date(isoString);
+        }
 
-// ✅ Nueva función: formatea la fecha (dd/mm/yyyy)
-function formatXMLTVDate(epgDateStr) {
-    const date = parseEPGDate(epgDateStr);
-    if (!date) return '';
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-}
+        // ✅ Nueva función: formatea la fecha (dd/mm/yyyy)
+        function formatXMLTVDate(epgDateStr) {
+            const date = parseEPGDate(epgDateStr);
+            if (!date) return '';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
 
-// ✅ Nueva función: formatea la hora local (hh:mm)
-function formatXMLTVTime(epgDateStr) {
-    const date = parseEPGDate(epgDateStr);
-    if (!date) return '';
-    const hour = String(date.getHours()).padStart(2, '0');
-    const minute = String(date.getMinutes()).padStart(2, '0');
-    return `${hour}:${minute}`;
-}
+        // ✅ Nueva función: formatea la hora local (hh:mm)
+        function formatXMLTVTime(epgDateStr) {
+            const date = parseEPGDate(epgDateStr);
+            if (!date) return '';
+            const hour = String(date.getHours()).padStart(2, '0');
+            const minute = String(date.getMinutes()).padStart(2, '0');
+            return `${hour}:${minute}`;
+        }
 
-// ✅ Ajuste de calculateDuration para que use la nueva función
-function calculateDuration(start, stop) {
-    const startDate = parseEPGDate(start);
-    const stopDate = parseEPGDate(stop);
-    if (!startDate || !stopDate) return '';
+        // ✅ Ajuste de calculateDuration para que use la nueva función
+        function calculateDuration(start, stop) {
+            const startDate = parseEPGDate(start);
+            const stopDate = parseEPGDate(stop);
+            if (!startDate || !stopDate) return '';
 
-    let diffMs = stopDate - startDate;
-    const diffMins = Math.floor(diffMs / 60000);
-    const hours = Math.floor(diffMins / 60);
-    const minutes = diffMins % 60;
+            let diffMs = stopDate - startDate;
+            const diffMins = Math.floor(diffMs / 60000);
+            const hours = Math.floor(diffMins / 60);
+            const minutes = diffMins % 60;
 
-    if (hours > 0) return `${hours}h ${minutes}m`;
-    return `${minutes}m`;
-}
-		
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            return `${minutes}m`;
+        }
+
         function populateChannelDropdown() {
             const dropdown = document.getElementById('channelDropdown');
             dropdown.innerHTML = '<option value="">Seleccionar Canal</option>';
@@ -995,7 +960,7 @@ function calculateDuration(start, stop) {
                 document.getElementById('data-list').style.display = 'flex'; // Aseguramos que sea flex
                 renderTable(true); // <--- Esto llamará a la lógica de renderizado paginado para la lista
             }
-        } 
+        }
 
         function renderGridView() {
             const container = document.getElementById('grid-container');
