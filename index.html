@@ -849,63 +849,75 @@
             return processedText;
         }
 
-        function renderTable(initial = false) {
-            const dataList = document.getElementById('data-list');
-            const resultCount = document.getElementById('result-count');
+ function renderTable(initial = false) {
+    const dataList = document.getElementById('data-list');
+    const resultCount = document.getElementById('result-count');
 
-            if (initial) {
-                // Recalcular filtro y lista filtrada
-                const filters = {
-                    channel: document.getElementById('channelFilter').value.toLowerCase(),
-                    title: document.getElementById('titleFilter').value.toLowerCase(),
-                    description: document.getElementById('descriptionFilter').value.toLowerCase(),
-                    date: document.getElementById('dateFilter').value,
-                    hour: document.getElementById('hourFilter').value
-                };
+    if (initial) {
+        const filters = {
+            channel: document.getElementById('channelFilter').value.toLowerCase(),
+            title: document.getElementById('titleFilter').value.toLowerCase(),
+            description: document.getElementById('descriptionFilter').value.toLowerCase(),
+            date: document.getElementById('dateFilter').value,
+            hour: document.getElementById('hourFilter').value
+        };
 
-                filteredData = epgData.filter(item => {
-                    // (Tu lógica de filtrado existente, que es eficiente)
-                    if (filters.channel && !item.channel.toLowerCase().includes(filters.channel)) return false;
-                    if (filters.title && !item.title.toLowerCase().includes(filters.title)) return false;
-                    if (filters.description && !item.description.toLowerCase().includes(filters.description)) return false;
+        filteredData = epgData.filter(item => {
+            if (filters.channel && !item.channel.toLowerCase().includes(filters.channel)) return false;
+            if (filters.title && !item.title.toLowerCase().includes(filters.title)) return false;
+            if (filters.description && !item.description.toLowerCase().includes(filters.description)) return false;
 
-                    if (filters.date) {
-                        const parts = item.date.split('/');
-                        const itemDateFormatted = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
-                        if (itemDateFormatted !== filters.date) return false;
-                    }
-
-                    if (filters.hour !== '') {
-                        const filterHour = parseInt(filters.hour, 10);
-                        if (isNaN(filterHour) || filterHour < 0 || filterHour > 23) return false;
-                        const itemHour = parseInt(item.start.split(':')[0], 10);
-                        if (isNaN(itemHour)) return false;
-                        if (itemHour >= filterHour) return true;
-                        const itemStopHour = parseInt(item.stop.split(':')[0], 10);
-                        if (!isNaN(itemStopHour) && itemHour < filterHour && itemStopHour >= filterHour) return true;
-                        return false;
-                    }
-                    return true;
-                });
-
-                renderedItems = 0; // Reiniciar el contador de elementos renderizados
-                dataList.innerHTML = ''; // Vaciar el contenedor
-                // Renderizar solo la primera "página" de resultados filtrados
-                const initialChunk = filteredData.slice(0, pageSize); // <--- CAMBIO CLAVE AQUÍ
-                renderChunk(initialChunk);
-                renderedItems += initialChunk.length;
-
-            } else {
-                // Esta parte es para el scroll infinito, carga la siguiente página
-                if (renderedItems < filteredData.length) {
-                    const nextChunk = filteredData.slice(renderedItems, renderedItems + pageSize);
-                    renderChunk(nextChunk);
-                    renderedItems += nextChunk.length;
-                }
+            if (filters.date) {
+                const parts = item.date.split('/');
+                const itemDateFormatted = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
+                if (itemDateFormatted !== filters.date) return false;
             }
 
-            resultCount.textContent = `Mostrando ${filteredData.length} programas`;
+            if (filters.hour !== '') {
+                const filterHour = parseInt(filters.hour, 10);
+                if (isNaN(filterHour) || filterHour < 0 || filterHour > 23) return false;
+                const itemHour = parseInt(item.start.split(':')[0], 10);
+                if (isNaN(itemHour)) return false;
+                const itemStopHour = parseInt(item.stop.split(':')[0], 10);
+                if (!isNaN(itemStopHour) && itemHour < filterHour && itemStopHour >= filterHour) return true;
+                return itemHour >= filterHour;
+            }
+
+            return true;
+        });
+
+        // -------------------------------
+        // ORDENAR CANALES POR LONGITUD
+        // -------------------------------
+        if (filters.channel) {
+            filteredData.sort((a, b) => {
+                const aIncludes = a.channel.toLowerCase().includes(filters.channel);
+                const bIncludes = b.channel.toLowerCase().includes(filters.channel);
+                // Primero los que incluyen la búsqueda
+                if (aIncludes && !bIncludes) return -1;
+                if (!aIncludes && bIncludes) return 1;
+                // Si ambos incluyen, ordenar por longitud del nombre
+                if (aIncludes && bIncludes) return a.channel.length - b.channel.length;
+                return 0; // si ninguno incluye, dejar igual
+            });
         }
+
+        renderedItems = 0;
+        dataList.innerHTML = '';
+        const initialChunk = filteredData.slice(0, pageSize);
+        renderChunk(initialChunk);
+        renderedItems += initialChunk.length;
+
+    } else {
+        if (renderedItems < filteredData.length) {
+            const nextChunk = filteredData.slice(renderedItems, renderedItems + pageSize);
+            renderChunk(nextChunk);
+            renderedItems += nextChunk.length;
+        }
+    }
+
+    resultCount.textContent = `Mostrando ${filteredData.length} programas`;
+}
 
         let gridView = false;
 
@@ -919,48 +931,67 @@
             }
         }
 
-        function renderCurrentView() {
-            if (gridView) {
-                document.getElementById('data-list').style.display = 'none';
-                document.getElementById('grid-container').style.display = 'block';
-                // Recalcula filteredData y renderiza la cuadrícula
-                const filters = {
-                    channel: document.getElementById('channelFilter').value.toLowerCase(),
-                    title: document.getElementById('titleFilter').value.toLowerCase(),
-                    description: document.getElementById('descriptionFilter').value.toLowerCase(),
-                    date: document.getElementById('dateFilter').value,
-                    hour: document.getElementById('hourFilter').value
-                };
-                filteredData = epgData.filter(item => {
-                    // ... (misma lógica de filtrado que en renderTable) ...
-                    if (filters.channel && !item.channel.toLowerCase().includes(filters.channel)) return false;
-                    if (filters.title && !item.title.toLowerCase().includes(filters.title)) return false;
-                    if (filters.description && !item.description.toLowerCase().includes(filters.description)) return false;
-                    if (filters.date) {
-                        const parts = item.date.split('/');
-                        const itemDateFormatted = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
-                        if (itemDateFormatted !== filters.date) return false;
-                    }
-                    if (filters.hour !== '') {
-                        const filterHour = parseInt(filters.hour, 10);
-                        if (isNaN(filterHour) || filterHour < 0 || filterHour > 23) return false;
-                        const itemHour = parseInt(item.start.split(':')[0], 10);
-                        if (isNaN(itemHour)) return false;
-                        if (itemHour >= filterHour) return true;
-                        const itemStopHour = parseInt(item.stop.split(':')[0], 10);
-                        if (!isNaN(itemStopHour) && itemHour < filterHour && itemStopHour >= filterHour) return true;
-                        return false;
-                    }
-                    return true;
-                });
-                renderGridView(); // Redibujar la cuadrícula
-                document.getElementById('result-count').textContent = `Mostrando ${filteredData.length} programas`;
-            } else {
-                document.getElementById('grid-container').style.display = 'none';
-                document.getElementById('data-list').style.display = 'flex'; // Aseguramos que sea flex
-                renderTable(true); // <--- Esto llamará a la lógica de renderizado paginado para la lista
+function renderCurrentView() {
+    if (gridView) {
+        document.getElementById('data-list').style.display = 'none';
+        document.getElementById('grid-container').style.display = 'block';
+
+        const filters = {
+            channel: document.getElementById('channelFilter').value.toLowerCase(),
+            title: document.getElementById('titleFilter').value.toLowerCase(),
+            description: document.getElementById('descriptionFilter').value.toLowerCase(),
+            date: document.getElementById('dateFilter').value,
+            hour: document.getElementById('hourFilter').value
+        };
+
+        filteredData = epgData.filter(item => {
+            if (filters.channel && !item.channel.toLowerCase().includes(filters.channel)) return false;
+            if (filters.title && !item.title.toLowerCase().includes(filters.title)) return false;
+            if (filters.description && !item.description.toLowerCase().includes(filters.description)) return false;
+
+            if (filters.date) {
+                const parts = item.date.split('/');
+                const itemDateFormatted = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
+                if (itemDateFormatted !== filters.date) return false;
             }
+
+            if (filters.hour !== '') {
+                const filterHour = parseInt(filters.hour, 10);
+                if (isNaN(filterHour) || filterHour < 0 || filterHour > 23) return false;
+                const itemHour = parseInt(item.start.split(':')[0], 10);
+                if (isNaN(itemHour)) return false;
+                const itemStopHour = parseInt(item.stop.split(':')[0], 10);
+                if (!isNaN(itemStopHour) && itemHour < filterHour && itemStopHour >= filterHour) return true;
+                return itemHour >= filterHour;
+            }
+
+            return true;
+        });
+
+        // -------------------------------
+        // ORDENAR CANALES POR LONGITUD
+        // -------------------------------
+        if (filters.channel) {
+            filteredData.sort((a, b) => {
+                const aIncludes = a.channel.toLowerCase().includes(filters.channel);
+                const bIncludes = b.channel.toLowerCase().includes(filters.channel);
+                if (aIncludes && !bIncludes) return -1;
+                if (!aIncludes && bIncludes) return 1;
+                if (aIncludes && bIncludes) return a.channel.length - b.channel.length;
+                return 0;
+            });
         }
+
+        renderGridView();
+        document.getElementById('result-count').textContent = `Mostrando ${filteredData.length} programas`;
+
+    } else {
+        document.getElementById('grid-container').style.display = 'none';
+        document.getElementById('data-list').style.display = 'flex';
+        renderTable(true);
+    }
+}
+
 
         function renderGridView() {
             const container = document.getElementById('grid-container');
